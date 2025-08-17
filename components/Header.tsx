@@ -1,0 +1,137 @@
+"use client";
+
+import { useState } from "react";
+import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { SignUpButton, useUser } from "@clerk/nextjs";
+import Link from "next/link";
+
+export function Header() {
+  const { isSignedIn } = useUser();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  const navItems = [
+    { name: "Clothing", href: "#" },
+    { name: "Accessories", href: "#" },
+    { name: "Apparel", href: "#" },
+  ];
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bengali-pattern">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col gap-4">
+                <div className="px-3 py-2">
+                  <div className="space-y-1">
+                    {navItems.map((item) => (
+                      <SheetClose key={item.name} asChild>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                        >
+                          {item.name}
+                        </Button>
+                      </SheetClose>
+                    ))}
+                  </div>
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
+
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              একটু
+            </h1>
+            <span className="ml-2 text-sm text-muted-foreground">Styles</span>
+          </div>
+
+          <nav className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <Link key={item.name} href={item.href}>
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            <div className="hidden sm:flex items-center">
+              {isSearchOpen ? (
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="search"
+                    placeholder="Search..."
+                    className="w-64"
+                    autoFocus
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSearchOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <Search className="h-5 w-5" />
+                  <span className="sr-only">Search</span>
+                </Button>
+              )}
+            </div>
+
+            <Button variant="ghost" size="icon" className="sm:hidden">
+              <Search className="h-5 w-5" />
+              <span className="sr-only">Search</span>
+            </Button>
+
+            {isSignedIn ? (
+              <div>
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Account</span>
+                </Button>
+
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingBag className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs text-accent-foreground flex items-center justify-center">
+                    ২
+                  </span>
+                  <span className="sr-only">Shopping bag</span>
+                </Button>
+              </div>
+            ) : (
+              <SignUpButton mode="modal">
+                <Button
+                  variant="outline"
+                  className="cursor-pointer text-secondary bg-accent"
+                >
+                  Sign Up
+                </Button>
+              </SignUpButton>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
