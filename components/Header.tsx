@@ -10,7 +10,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { SignUpButton, useUser } from "@clerk/nextjs";
+import { SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
 export function Header() {
@@ -120,6 +120,8 @@ export function Header() {
                   </span>
                   <span className="sr-only">Shopping bag</span>
                 </Button>
+
+                <UserButton />
               </div>
             ) : (
               <SignUpButton>
