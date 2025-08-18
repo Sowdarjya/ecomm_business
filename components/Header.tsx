@@ -55,10 +55,12 @@ export function Header() {
           </Sheet>
 
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              একটু
-            </h1>
-            <span className="ml-2 text-sm text-muted-foreground">Styles</span>
+            <Link href="/" className="flex items-center">
+              <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                একটু
+              </h1>
+              <span className="ml-2 text-sm text-muted-foreground">Styles</span>
+            </Link>
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -120,7 +122,7 @@ export function Header() {
                 </Button>
               </div>
             ) : (
-              <SignUpButton mode="modal">
+              <SignUpButton>
                 <Button
                   variant="outline"
                   className="cursor-pointer text-secondary bg-accent"

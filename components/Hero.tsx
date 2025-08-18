@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button";
 const Hero = () => {
   return (
     <section className="relative h-[70vh] flex items-center justify-center overflow-hidden bengali-pattern">
-      <div className="absolute inset-0 bg-[url('/hero-img.png')] bg-cover bg-center bg-no-repeat bg-blend-multiply">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/20" />
-        <div className="absolute inset-0 bg-amber-200/20" />
+      <div className="absolute inset-0 bg-[url('/hero-img.png')] bg-cover bg-center bg-no-repeat ">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/20 backdrop-blur-[0.5rem]" />
       </div>
 
       <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8">
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
+        <h1 className="text-3xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
           Discover the perfect blend of traditional Bengali clothing and modern
           fashion.
         </h1>
