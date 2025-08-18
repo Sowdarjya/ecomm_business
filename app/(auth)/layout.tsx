@@ -28,15 +28,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <ClerkProvider>
-      <html
-        lang="en"
-        suppressHydrationWarning={true}
-        className={`${balooDa2.variable}`}
-      >
-        <body className="font-baloo">{children}</body>
-      </html>
-    </ClerkProvider>
-  );
+  return <div>{children}</div>;
 }
