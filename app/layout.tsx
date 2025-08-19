@@ -35,7 +35,9 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const hideHeader =
-    pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up") ||
+    pathname.startsWith("/admin");
 
   return (
     <ClerkProvider>
