@@ -1,10 +1,23 @@
 "use client";
 
+import type React from "react";
+
 import { useState } from "react";
 import { createProduct } from "@/actions/product.action"; // adjust import
 
 export default function NewProductPage() {
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File[] | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setSelectedFile(Array.from(files));
+      console.log("Selected files:", Array.from(files));
+    } else {
+      setSelectedFile(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,7 +30,7 @@ export default function NewProductPage() {
     const stock = Number(formData.get("stock"));
     const category = formData.get("category") as string;
     const size = formData.get("size") as string | undefined;
-    const images = formData.getAll("images") as File[];
+    const images = selectedFile ?? [];
 
     const res = await createProduct(
       name,
@@ -35,77 +48,128 @@ export default function NewProductPage() {
       alert("✅ Product created successfully!");
       e.currentTarget.reset();
     } else {
-      alert("❌ Error creating product.");
+      alert("❌ Failed to create product. Please try again.");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Add New Product</h1>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 p-6">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border-2 border-amber-200 p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-amber-900 mb-2 font-bengali">
+              Add New Product
+            </h1>
+          </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          required
-          className="w-full border p-2 rounded"
-        />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                Product Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Product Name"
+                required
+                className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50"
+              />
+            </div>
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          required
-          className="w-full border p-2 rounded"
-        />
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                Description *
+              </label>
+              <textarea
+                name="description"
+                placeholder="Product Description"
+                required
+                rows={4}
+                className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50 resize-none"
+              />
+            </div>
 
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          step="0.01"
-          required
-          className="w-full border p-2 rounded"
-        />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                  Price *
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  placeholder="₹ Price"
+                  step="0.01"
+                  required
+                  className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50"
+                />
+              </div>
 
-        <input
-          type="number"
-          name="stock"
-          placeholder="Stock"
-          required
-          className="w-full border p-2 rounded"
-        />
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                  Stock *
+                </label>
+                <input
+                  type="number"
+                  name="stock"
+                  placeholder="Stock Quantity"
+                  required
+                  className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50"
+                />
+              </div>
+            </div>
 
-        <select name="category" required className="w-full border p-2 rounded">
-          <option value="">Select Category</option>
-          <option value="CLOTHING">Clothing</option>
-          <option value="ACCESSORIES">Accessories</option>
-        </select>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                Category *
+              </label>
+              <select
+                name="category"
+                required
+                className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50"
+              >
+                <option value="">Select a category</option>
+                <option value="CLOTHING">Clothing</option>
+                <option value="ACCESSORIES">Accessories</option>
+              </select>
+            </div>
 
-        <input
-          type="text"
-          name="size"
-          placeholder="Size (optional)"
-          className="w-full border p-2 rounded"
-        />
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                Size
+              </label>
+              <input
+                type="text"
+                name="size"
+                placeholder="S, M, L, XL"
+                className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50"
+              />
+            </div>
 
-        <input
-          type="file"
-          name="images"
-          multiple
-          accept="image/*"
-          required
-          className="w-full border p-2 rounded"
-        />
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-amber-900 font-bengali">
+                Product Images *
+              </label>
+              <input
+                type="file"
+                name="images"
+                multiple
+                accept="image/*"
+                required
+                onChange={handleFileChange}
+                className="w-full border-2 border-amber-200 p-3 rounded-lg focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition-all bg-white/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200"
+              />
+            </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-white p-2 rounded hover:bg-primary/90"
-        >
-          {loading ? "Uploading..." : "Add Product"}
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-amber-600 to-yellow-600 text-white p-4 rounded-lg hover:from-amber-700 hover:to-yellow-700 transition-all duration-300 font-bold text-lg font-bengali disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+            >
+              {loading ? "Uploading..." : "Create Product"}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
