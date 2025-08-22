@@ -4,6 +4,8 @@ import type React from "react";
 
 import { useState } from "react";
 import { createProduct } from "@/actions/product.action"; // adjust import
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 export default function NewProductPage() {
   const [loading, setLoading] = useState(false);
@@ -14,7 +16,6 @@ export default function NewProductPage() {
     if (files && files.length > 0) {
       const newFiles = Array.from(files);
       setSelectedFile([...(selectedFile || []), ...newFiles]);
-      console.log("Selected files:", newFiles);
     } else {
       setSelectedFile(null);
     }
@@ -46,10 +47,10 @@ export default function NewProductPage() {
     setLoading(false);
 
     if (res.success) {
-      alert("✅ Product created successfully!");
-      e.currentTarget.reset();
+      toast.success("✅ Product created successfully!");
+      redirect("/admin/products");
     } else {
-      alert("❌ Failed to create product. Please try again.");
+      toast.error("❌ Failed to create product. Please try again.");
     }
   };
 

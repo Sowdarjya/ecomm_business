@@ -22,7 +22,7 @@ export default async function Products() {
               {product.images?.length > 0 && (
                 <div className="relative overflow-hidden rounded-lg mb-4">
                   <Image
-                    src={product.images[0] || "/placeholder.svg"}
+                    src={product.images[1] || "/placeholder.svg"}
                     alt={product.name}
                     width={300}
                     height={200}
