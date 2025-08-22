@@ -6,6 +6,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header } from "@/components/Header";
 import { usePathname } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +49,7 @@ export default function RootLayout({
       >
         <body className="font-baloo">
           {!hideHeader && <Header />}
+          <Toaster position="top-right" />
           {children}
         </body>
       </html>

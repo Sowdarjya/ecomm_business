@@ -7,13 +7,14 @@ import { createProduct } from "@/actions/product.action"; // adjust import
 
 export default function NewProductPage() {
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File[] | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File[] | null>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      setSelectedFile(Array.from(files));
-      console.log("Selected files:", Array.from(files));
+      const newFiles = Array.from(files);
+      setSelectedFile([...(selectedFile || []), ...newFiles]);
+      console.log("Selected files:", newFiles);
     } else {
       setSelectedFile(null);
     }

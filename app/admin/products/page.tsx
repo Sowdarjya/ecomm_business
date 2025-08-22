@@ -1,4 +1,4 @@
-import { getProducts } from "@/actions/product.action";
+import { addToCart, getProducts } from "@/actions/product.action";
 import Image from "next/image";
 
 export default async function Products() {
@@ -63,9 +63,8 @@ export default async function Products() {
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🛍️</div>
             <h3 className="text-2xl font-bold text-amber-900 mb-2 font-bengali">
-              কোন পণ্য পাওয়া যায়নি
+              No products found
             </h3>
-            <p className="text-amber-700">No products found</p>
           </div>
         )}
       </div>

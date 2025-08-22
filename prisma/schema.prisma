@@ -39,7 +39,7 @@ model Product {
   stock       Int
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  CartItem    CartItem[]
+  CartItems   CartItem[]
 
   @@map("products")
 }
@@ -48,7 +48,7 @@ model Cart {
   id     String     @id @default(auto()) @map("_id") @db.ObjectId
   userId String     @db.ObjectId
   items  CartItem[]
-  user   User       @relation(fields: [userId], references: [id])
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("carts")
 }
@@ -58,9 +58,10 @@ model CartItem {
   cartId    String  @db.ObjectId
   productId String  @db.ObjectId
   quantity  Int
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   cart      Cart    @relation(fields: [cartId], references: [id])
 
+  @@unique([cartId, productId])
   @@map("cartItems")
 }
 
