@@ -136,11 +136,13 @@ export function Header() {
                 </Button>
 
                 <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingBag className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs text-accent-foreground flex items-center justify-center">
-                    {cartQuantity > 0 ? cartQuantity : ""}
-                  </span>
-                  <span className="sr-only">Shopping bag</span>
+                  <Link href="/cart">
+                    <ShoppingBag className="h-5 w-5" />
+                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs text-accent-foreground flex items-center justify-center">
+                      {cartQuantity > 0 ? cartQuantity : ""}
+                    </span>
+                    <span className="sr-only">Shopping bag</span>
+                  </Link>
                 </Button>
 
                 <UserButton />

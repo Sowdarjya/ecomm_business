@@ -263,3 +263,81 @@ export const getCartQuantity = async () => {
     return { success: false, message: "Failed to fetch cart quantity" };
   }
 };
+
+export const getUserCartItems = async () => {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return { success: false, message: "User not authenticated" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true },
+    });
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    const cart = await prisma.cart.findFirst({
+      where: { userId: user.id },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!cart) {
+      return { success: true, items: [] };
+    }
+    revalidatePath("/cart");
+    revalidatePath("/");
+    return { success: true, items: cart.items };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to fetch cart items" };
+  }
+};
+
+export const removeCartItem = async (cartItemId: string) => {
+  try {
+    const cartItem = await prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      select: { id: true, productId: true, quantity: true },
+    });
+
+    if (!cartItem) {
+      return { success: false, message: "Cart item not found" };
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: cartItem.productId },
+      select: { id: true, stock: true },
+    });
+
+    if (!product) {
+      return { success: false, message: "Product not found" };
+    }
+
+    await prisma.product.update({
+      where: { id: product.id },
+      data: { stock: product.stock + cartItem.quantity },
+    });
+
+    await prisma.cartItem.delete({
+      where: { id: cartItemId },
+    });
+
+    revalidatePath("/cart");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to remove cart item" };
+  }
+};
