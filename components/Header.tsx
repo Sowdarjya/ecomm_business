@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,32 @@ import {
 } from "@/components/ui/sheet";
 import { SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { getCartQuantity } from "@/actions/product.action";
 
 export function Header() {
   const { isSignedIn } = useUser();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [cartQuantity, setCartQuantity] = useState(0);
+
+  const fetchCartQuantity = async () => {
+    try {
+      const quantity = await getCartQuantity();
+
+      if (quantity.success) {
+        setCartQuantity(quantity.quantity ?? 0);
+      } else {
+        toast.error(quantity.message || "Failed to fetch cart quantity");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to fetch cart quantity");
+    }
+  };
+
+  useEffect(() => {
+    fetchCartQuantity();
+  }, []);
 
   const navItems = [
     { name: "Clothing", href: "#" },
@@ -116,7 +138,7 @@ export function Header() {
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingBag className="h-5 w-5" />
                   <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs text-accent-foreground flex items-center justify-center">
-                    ২
+                    {cartQuantity > 0 ? cartQuantity : ""}
                   </span>
                   <span className="sr-only">Shopping bag</span>
                 </Button>

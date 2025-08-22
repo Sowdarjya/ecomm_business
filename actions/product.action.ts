@@ -5,6 +5,9 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { it } from "node:test";
+
+type Category = "CLOTHING" | "ACCESSORIES";
 
 export const getProducts = async () => {
   return await prisma.product.findMany();
@@ -189,5 +192,74 @@ export const addToCart = async (productId: string, quantity: number = 1) => {
   } catch (error) {
     console.log(error);
     return { success: false };
+  }
+};
+
+export const getProductsByCategory = async (category: string) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        category: category as Category,
+      },
+    });
+
+    return products;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
+export const getProductDetails = async (productId: string) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    return { success: true, product };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to fetch product details" };
+  }
+};
+
+export const getCartQuantity = async () => {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return { success: false, message: "User not authenticated" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    const cart = await prisma.cart.findFirst({
+      where: { userId: user.id },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!cart) {
+      return { success: true, quantity: 0 };
+    }
+
+    const quantity = cart.items
+      .map((item) => item.quantity)
+      .reduce((a, b) => a + b, 0);
+
+    revalidatePath("/cart");
+    revalidatePath("/");
+    return { success: true, quantity };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to fetch cart quantity" };
   }
 };
