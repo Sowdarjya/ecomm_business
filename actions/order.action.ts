@@ -1,0 +1,241 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
+
+export async function placeOrder(address: string) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        message: "Authentication required",
+      };
+    }
+
+    if (!address || address.trim() === "") {
+      return {
+        success: false,
+        message: "Address is required",
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    const cart = await prisma.cart.findFirst({
+      where: { userId: user.id },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!cart || cart.items.length === 0) {
+      return {
+        success: false,
+        message: "Cart is empty",
+      };
+    }
+
+    for (const item of cart.items) {
+      if (item.product.stock < item.quantity) {
+        return {
+          success: false,
+          message: `Insufficient stock for ${item.product.name}. Available: ${item.product.stock}, Requested: ${item.quantity}`,
+        };
+      }
+    }
+
+    const totalPrice = cart.items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0
+    );
+
+    const shipping = totalPrice > 1000 ? 0 : 50;
+    const finalTotal = totalPrice + shipping;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.order.create({
+        data: {
+          userId: user.id,
+          totalPrice: finalTotal,
+          location: address.trim(),
+          status: "PENDING",
+        },
+      });
+
+      const orderItems = await Promise.all(
+        cart.items.map((item) =>
+          tx.orderItem.create({
+            data: {
+              orderId: order.id,
+              productId: item.productId,
+              quantity: item.quantity,
+            },
+          })
+        )
+      );
+
+      await Promise.all(
+        cart.items.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          })
+        )
+      );
+
+      await tx.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
+
+      return {
+        order,
+        orderItems,
+      };
+    });
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { address: address.trim() },
+    });
+
+    revalidatePath("/cart");
+    revalidatePath("/orders");
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Order placed successfully",
+      orderId: result.order.id,
+      orderTotal: finalTotal,
+    };
+  } catch (error) {
+    console.error("Error placing order:", error);
+    return {
+      success: false,
+      message: "Failed to place order. Please try again.",
+    };
+  }
+}
+
+export async function getOrderById(orderId: string) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        message: "Authentication required",
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        userId: user.id,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return {
+        success: false,
+        message: "Order not found",
+      };
+    }
+
+    return {
+      success: true,
+      order,
+    };
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    return {
+      success: false,
+      message: "Failed to fetch order details",
+    };
+  }
+}
+
+export async function getUserOrders() {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        message: "Authentication required",
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { userId: user.id },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      success: true,
+      orders,
+    };
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return {
+      success: false,
+      message: "Failed to fetch orders",
+    };
+  }
+}
