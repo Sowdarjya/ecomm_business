@@ -79,9 +79,8 @@ export function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                একটু
+                Beeচিত্র
               </h1>
-              <span className="ml-2 text-sm text-muted-foreground">Styles</span>
             </Link>
           </div>
 
