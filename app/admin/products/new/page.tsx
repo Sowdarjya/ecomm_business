@@ -31,8 +31,15 @@ export default function NewProductPage() {
     const price = Number(formData.get("price"));
     const stock = Number(formData.get("stock"));
     const category = formData.get("category") as string;
-    const size = formData.get("size") as string | undefined;
+    const size = formData.get("size") as string | null;
     const images = selectedFile ?? [];
+
+    const sizes = size
+      ? size
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
 
     const res = await createProduct(
       name,
@@ -41,7 +48,7 @@ export default function NewProductPage() {
       images,
       category,
       stock,
-      size
+      sizes
     );
 
     setLoading(false);

@@ -26,7 +26,7 @@ type Product = {
   price: number;
   images: string[];
   category: "CLOTHING" | "ACCESSORIES";
-  size: string | null;
+  size: string[];
   stock: number;
   createdAt: Date;
   updatedAt: Date;
@@ -220,15 +220,22 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            {product.size && (
+            {product.size.length > 0 && (
               <div>
-                <h3 className="font-semibold text-amber-900 mb-2">Size:</h3>
-                <Badge
-                  variant="outline"
-                  className="border-amber-300 text-amber-700 px-4 py-2"
-                >
-                  {product.size}
-                </Badge>
+                <h3 className="font-semibold text-amber-900 mb-2">
+                  Available Sizes:
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.size.map((s) => (
+                    <Badge
+                      key={s}
+                      variant="outline"
+                      className="border-amber-300 text-amber-700 px-4 py-2"
+                    >
+                      {s}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             )}
 

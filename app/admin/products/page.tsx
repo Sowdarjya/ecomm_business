@@ -48,6 +48,14 @@ export default async function Products() {
                     <p className="text-sm text-amber-600 font-bengali">
                       stock: {product.stock}
                     </p>
+                    <p className="text-sm text-amber-600 font-bengali">
+                      stock: {product.stock}
+                    </p>
+                    {product.size?.length > 0 && (
+                      <p className="text-sm text-gray-600">
+                        sizes: {product.size.join(", ")}
+                      </p>
+                    )}
                   </div>
 
                   <button className="bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-4 py-2 rounded-lg hover:from-amber-700 hover:to-yellow-700 transition-all duration-300 font-bengali text-sm">

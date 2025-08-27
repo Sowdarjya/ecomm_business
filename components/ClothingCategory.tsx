@@ -16,7 +16,7 @@ type Product = {
   price: number;
   images: string[];
   category: Category;
-  size: string | null;
+  size: string[];
   stock: number;
   createdAt: Date;
   updatedAt: Date;
@@ -154,10 +154,6 @@ const ClothingCategory = () => {
                   <h3 className="font-semibold text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-1">
                     {product.name}
                   </h3>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs text-gray-600">4.5</span>
-                  </div>
                 </div>
 
                 <div className="flex items-center justify-between mb-4">
@@ -171,9 +167,9 @@ const ClothingCategory = () => {
                       </span>{" "}
                       ₹{product.price}
                     </span>
-                    {product.size && (
+                    {product.size.length > 0 && (
                       <span className="text-xs text-gray-500">
-                        size: {product.size}
+                        Sizes: {product.size.join(", ")}
                       </span>
                     )}
                   </div>

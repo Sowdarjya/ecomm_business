@@ -20,7 +20,7 @@ export const createProduct = async (
   images: File[],
   category: string,
   stock: number,
-  size?: string
+  sizes: string[] = []
 ) => {
   try {
     const uploadedImages = await Promise.all(
@@ -42,7 +42,7 @@ export const createProduct = async (
         images: uploadedImages,
         category: category as any,
         stock,
-        size,
+        size: sizes,
       },
     });
 
