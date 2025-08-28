@@ -6,9 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ShoppingCart,
   Heart,
-  Star,
   ArrowLeft,
   Share2,
   Truck,
@@ -37,35 +50,59 @@ export default function ProductDetailsPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [cartQuantity, setCartQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const productData = await getProductDetails(params.id as string);
-        setProduct(productData.product ?? null);
+        const { success, product } = await getProductDetails(
+          params.id as string
+        );
+        if (success && product) {
+          console.log(product);
+
+          setProduct(product);
+          setLoading(false);
+        } else {
+          setProduct(null);
+          setLoading(false);
+        }
       } catch (error) {
-        console.error("Error fetching product details:", error);
-        toast.error("Failed to load product details");
+        console.error(error);
+        setLoading(false);
       }
     };
 
     fetchProduct();
-    setLoading(false);
   }, [params.id]);
-
   const handleAddToCart = async () => {
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+
     try {
-      await addToCart(product?.id as string, quantity);
-      toast.success("Product added to cart");
+      await addToCart(product?.id as string, cartQuantity, selectedSize);
+      toast.success(`${cartQuantity} item(s) added to cart!`);
+      setIsDialogOpen(false);
+      setSelectedSize("");
+      setCartQuantity(1);
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to add product to cart");
+      console.error(error);
+      toast.error("Failed to add item to cart");
     }
   };
 
   const handleAddToWishlist = () => {
     toast.success("Added to wishlist!");
+  };
+
+  const openCartDialog = () => {
+    if (product && product.stock > 0) {
+      setIsDialogOpen(true);
+    }
   };
 
   if (loading) {
@@ -119,20 +156,16 @@ export default function ProductDetailsPage() {
       <div className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/product">
               <Button
                 variant="ghost"
-                className="text-amber-700 hover:text-amber-900 cursor-pointer"
+                className="text-amber-700 hover:text-amber-900"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Products
               </Button>
             </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-amber-700 cursor-pointer"
-            >
+            <Button variant="ghost" size="sm" className="text-amber-700">
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
@@ -189,7 +222,7 @@ export default function ProductDetailsPage() {
           <div className="space-y-6">
             <div>
               <Badge className="bg-amber-100 text-amber-800 mb-3">
-                {product.category === "CLOTHING" ? "clothing" : "accessories"}
+                {product.category === "CLOTHING" ? "Clothing" : "Accessories"}
               </Badge>
               <h1 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">
                 {product.name}
@@ -197,11 +230,12 @@ export default function ProductDetailsPage() {
 
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-4xl font-bold text-amber-800">
-                  ₹{product.price}
+                  ₹{product.price.toLocaleString()}
                 </span>
                 <span className="text-xl text-gray-500 line-through">
-                  ₹{product.price + 100}
+                  ₹{(product.price + 100).toLocaleString()}
                 </span>
+                <Badge className="bg-green-100 text-green-800">17% Off</Badge>
               </div>
 
               <div className="flex items-center gap-2 mb-6">
@@ -220,7 +254,7 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            {product.size.length > 0 && (
+            {product.size && product.size.length > 0 && (
               <div>
                 <h3 className="font-semibold text-amber-900 mb-2">
                   Available Sizes:
@@ -239,42 +273,97 @@ export default function ProductDetailsPage() {
               </div>
             )}
 
-            <div>
-              <h3 className="font-semibold text-amber-900 mb-2">Quantity:</h3>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={product.stock === 0}
-                  className="border-amber-300 cursor-pointer"
-                >
-                  -
-                </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setQuantity(Math.min(product.stock, quantity + 1))
-                  }
-                  disabled={product.stock === 0}
-                  className="border-amber-300 cursor-pointer"
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-
             <div className="flex gap-4">
-              <Button
-                onClick={handleAddToCart}
-                disabled={product.stock === 0}
-                className="flex-1 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-medium py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={openCartDialog}
+                    disabled={product.stock === 0}
+                    className="flex-1 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-medium py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Add to Cart</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Select Size
+                      </label>
+                      <Select
+                        value={selectedSize}
+                        onValueChange={setSelectedSize}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {product.size.map((size) => (
+                            <SelectItem key={size} value={size}>
+                              {size}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Quantity
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setCartQuantity(Math.max(1, cartQuantity - 1))
+                          }
+                          className="border-amber-300"
+                        >
+                          -
+                        </Button>
+                        <span className="w-12 text-center font-medium">
+                          {cartQuantity}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setCartQuantity(
+                              Math.min(product.stock, cartQuantity + 1)
+                            )
+                          }
+                          className="border-amber-300"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsDialogOpen(false)}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleAddToCart}
+                        disabled={!selectedSize}
+                        className="flex-1 bg-amber-600 hover:bg-amber-700"
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
               <Button
                 variant="outline"
                 onClick={handleAddToWishlist}
@@ -284,10 +373,34 @@ export default function ProductDetailsPage() {
               </Button>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-200">
+                <Truck className="h-5 w-5 text-amber-600" />
+                <div>
+                  <p className="font-medium text-amber-900">Free Delivery</p>
+                  <p className="text-xs text-amber-700">On orders above ₹500</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-200">
+                <Shield className="h-5 w-5 text-amber-600" />
+                <div>
+                  <p className="font-medium text-amber-900">Warranty</p>
+                  <p className="text-xs text-amber-700">1 Year Warranty</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-200">
+                <RotateCcw className="h-5 w-5 text-amber-600" />
+                <div>
+                  <p className="font-medium text-amber-900">Returns</p>
+                  <p className="text-xs text-amber-700">7 Day Returns</p>
+                </div>
+              </div>
+            </div>
+
             <Card className="border-amber-200 bg-white/60 backdrop-blur-sm">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-amber-900 mb-3">
-                  Product Details
+                  Product Details:
                 </h3>
                 <p className="text-amber-800 leading-relaxed">
                   {product.description}

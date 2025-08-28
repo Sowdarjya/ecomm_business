@@ -5,7 +5,6 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { it } from "node:test";
 
 type Category = "CLOTHING" | "ACCESSORIES";
 
@@ -55,7 +54,11 @@ export const createProduct = async (
   }
 };
 
-export const addToCart = async (productId: string, quantity: number = 1) => {
+export const addToCart = async (
+  productId: string,
+  quantity: number = 1,
+  size?: string
+) => {
   try {
     const { userId } = await auth();
 
@@ -136,7 +139,7 @@ export const addToCart = async (productId: string, quantity: number = 1) => {
             items: {
               update: {
                 where: { id: exsistingItem.id },
-                data: { quantity: newQuantity },
+                data: { quantity: newQuantity, size },
               },
             },
           },
@@ -152,6 +155,7 @@ export const addToCart = async (productId: string, quantity: number = 1) => {
             productId,
             quantity,
             cartId: cart.id,
+            size,
           },
         });
 
@@ -162,6 +166,7 @@ export const addToCart = async (productId: string, quantity: number = 1) => {
               create: {
                 productId,
                 quantity,
+                size,
               },
             },
           },

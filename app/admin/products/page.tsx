@@ -1,4 +1,4 @@
-import { addToCart, getProducts } from "@/actions/product.action";
+import { getProducts } from "@/actions/product.action";
 import Image from "next/image";
 
 export default async function Products() {

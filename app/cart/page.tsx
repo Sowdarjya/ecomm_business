@@ -1,11 +1,11 @@
 "use client";
 
-import { getUserCartItems } from "@/actions/product.action";
+import { getUserCartItems, removeCartItem } from "@/actions/product.action";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -27,6 +27,7 @@ const CartPage = () => {
     cartId: string;
     productId: string;
     quantity: number;
+    size: string | null;
     product: {
       id: string;
       createdAt: Date;
@@ -36,7 +37,7 @@ const CartPage = () => {
       price: number;
       images: string[];
       category: "CLOTHING" | "ACCESSORIES";
-      size: string | null;
+      size: String[];
       stock: number;
     };
   };
@@ -66,6 +67,8 @@ const CartPage = () => {
     }
   };
 
+  console.log(cartItems);
+
   const fetchDefaultAddress = async () => {
     try {
       const result = await getDefaultAddress();
@@ -85,7 +88,6 @@ const CartPage = () => {
 
     setIsPlacingOrder(true);
     try {
-      // Set as default address if checkbox is checked
       if (setAsDefault) {
         const setDefaultResult = await setDefaultAddress(address);
         if (!setDefaultResult.success) {
@@ -94,13 +96,11 @@ const CartPage = () => {
         }
       }
 
-      // Place the order
       const result = await placeOrder(address);
       if (result.success) {
         toast.success("Order placed successfully!");
         setIsCheckoutOpen(false);
         setCartItems([]);
-        // Optionally redirect to order confirmation page
       } else {
         toast.error(result.message || "Failed to place order");
       }
@@ -125,9 +125,15 @@ const CartPage = () => {
     );
   };
 
-  const removeItem = (itemId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== itemId));
-    toast.success("Item removed from cart");
+  const removeItem = async (itemId: string) => {
+    try {
+      await removeCartItem(itemId);
+      fetchCartItems();
+      toast.success("Item removed from cart");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to remove item");
+    }
   };
 
   const subtotal = cartItems.reduce(
@@ -158,7 +164,7 @@ const CartPage = () => {
               Your Cart is Empty
             </h1>
             <p className="text-amber-700 mb-8">Add your favorite products</p>
-            <Link href="/products">
+            <Link href="/">
               <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-3 rounded-full">
                 Start Shopping
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -215,7 +221,7 @@ const CartPage = () => {
                             </span>
                             {item.product.size && (
                               <span className="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded-full">
-                                Size: {item.product.size}
+                                Size: {item.size}
                               </span>
                             )}
                           </div>
@@ -224,7 +230,7 @@ const CartPage = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeItem(item.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -232,39 +238,14 @@ const CartPage = () => {
 
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
-                            disabled={item.quantity <= 1}
-                            className="h-8 w-8 p-0 border-amber-300 hover:bg-amber-50"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
                           <span className="font-medium text-amber-900 min-w-[2rem] text-center">
-                            {item.quantity}
+                            Quantity: {item.quantity}
                           </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
-                            disabled={item.quantity >= item.product.stock}
-                            className="h-8 w-8 p-0 border-amber-300 hover:bg-amber-50"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
                         </div>
 
                         <div className="text-right">
                           <p className="text-lg font-bold text-amber-900">
-                            ₹
-                            {(
-                              item.product.price * item.quantity
-                            ).toLocaleString()}
+                            ₹{item.product.price * item.quantity}
                           </p>
                           <p className="text-sm text-amber-600">
                             ₹{item.product.price} each
@@ -288,7 +269,7 @@ const CartPage = () => {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-amber-800">
                     <span>Subtotal ({cartItems.length} items)</span>
-                    <span>₹{subtotal.toLocaleString()}</span>
+                    <span>₹{subtotal}</span>
                   </div>
                   <div className="flex justify-between text-amber-800">
                     <span>Delivery Charge</span>
@@ -304,7 +285,7 @@ const CartPage = () => {
                   <div className="border-t border-amber-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-amber-900">
                       <span>Total</span>
-                      <span>₹{total.toLocaleString()}</span>
+                      <span>₹{total}</span>
                     </div>
                   </div>
                 </div>
@@ -312,7 +293,7 @@ const CartPage = () => {
                 <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
                   <DialogTrigger asChild>
                     <Button
-                      className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                       onClick={fetchDefaultAddress}
                     >
                       Checkout
@@ -360,13 +341,13 @@ const CartPage = () => {
                       <div className="border-t pt-4">
                         <div className="flex justify-between text-lg font-bold text-amber-900 mb-4">
                           <span>Total Amount:</span>
-                          <span>₹{total.toLocaleString()}</span>
+                          <span>₹{total}</span>
                         </div>
 
                         <Button
                           onClick={handleCheckout}
                           disabled={isPlacingOrder || !address.trim()}
-                          className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white"
+                          className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white cursor-pointer"
                         >
                           {isPlacingOrder ? "Placing Order..." : "Place Order"}
                         </Button>
