@@ -9,6 +9,28 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  experimental: {
+    serverComponentsExternalPackages: ["@prisma/client", "prisma"],
+  },
+
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = [...config.plugins];
+    }
+
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        "**/node_modules",
+        "**/.next",
+        "**/C:/Users/HP/Cookies/**",
+        "**/Cookies/**",
+      ],
+    };
+
+    return config;
+  },
 };
 
 export default nextConfig;
