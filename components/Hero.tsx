@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const Hero = () => {
   return (
@@ -17,13 +18,12 @@ const Hero = () => {
           twist.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-white text-white hover:bg-white hover:text-primary bg-transparent font-medium cursor-pointer py-3 px-6"
+          <Link
+            href="/#clothing"
+            className="border-white border text-white hover:bg-white hover:text-primary bg-transparent font-medium cursor-pointer py-3 px-6 rounded-md text-lg transition-colors duration-300 text-center"
           >
             Shop Now
-          </Button>
+          </Link>
         </div>
       </div>
     </section>

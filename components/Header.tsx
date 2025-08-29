@@ -39,8 +39,7 @@ export function Header() {
 
   const navItems = [
     { name: "Clothing", href: "/#clothing" },
-    { name: "Accessories", href: "#" },
-    { name: "Apparel", href: "#" },
+    { name: "About", href: "/#about" },
     { name: "Wishlist", href: "/wishlist" },
   ];
 

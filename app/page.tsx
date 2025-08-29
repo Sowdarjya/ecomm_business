@@ -1,5 +1,6 @@
 "use client";
 
+import AboutUs from "@/components/AboutUs";
 import ClothingCategory from "@/components/ClothingCategory";
 import Hero from "@/components/Hero";
 import React from "react";
@@ -9,6 +10,7 @@ const Home = () => {
     <div>
       <Hero />
       <ClothingCategory />
+      <AboutUs />
     </div>
   );
 };

@@ -2,12 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export const addToWishlist = async (productId: string) => {
   try {
     const { userId } = await auth();
 
     if (!userId) {
+      redirect("/sign-in");
       return { success: false, message: "Authentication required" };
     }
 
@@ -67,7 +69,10 @@ export const addToWishlist = async (productId: string) => {
 export const removeFromWishlist = async (productId: string) => {
   try {
     const { userId } = await auth();
-    if (!userId) return { success: false, message: "Authentication required" };
+    if (!userId) {
+      redirect("/sign-in");
+      return { success: false, message: "Authentication required" };
+    }
 
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
@@ -100,7 +105,10 @@ export const removeFromWishlist = async (productId: string) => {
 export const getWishlist = async () => {
   try {
     const { userId } = await auth();
-    if (!userId) return { success: false, message: "Authentication required" };
+    if (!userId) {
+      redirect("/sign-in");
+      return { success: false, message: "Authentication required" };
+    }
 
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },

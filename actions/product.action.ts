@@ -346,3 +346,150 @@ export const removeCartItem = async (cartItemId: string) => {
     return { success: false, message: "Failed to remove cart item" };
   }
 };
+
+type UpdateProductData = {
+  name: string;
+  description: string;
+  price: number;
+  category: "CLOTHING" | "ACCESSORIES";
+  stock: number;
+  size: string[];
+};
+
+export async function updateProduct(
+  productId: string,
+  data: UpdateProductData
+) {
+  try {
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!existingProduct) {
+      return {
+        success: false,
+        message: "Product not found",
+      };
+    }
+
+    // Validate input data
+    if (!data.name.trim()) {
+      return {
+        success: false,
+        message: "Product name is required",
+      };
+    }
+
+    if (data.price <= 0) {
+      return {
+        success: false,
+        message: "Price must be greater than 0",
+      };
+    }
+
+    if (data.stock < 0) {
+      return {
+        success: false,
+        message: "Stock cannot be negative",
+      };
+    }
+
+    // Update the product
+    const updatedProduct = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        name: data.name.trim(),
+        description: data.description.trim(),
+        price: data.price,
+        category: data.category,
+        stock: data.stock,
+        size: {
+          set: data.size.length > 0 ? data.size : [],
+        },
+        updatedAt: new Date(),
+      },
+    });
+
+    // Revalidate relevant pages
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+    revalidatePath(`/products/${productId}`);
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Product updated successfully",
+      product: updatedProduct,
+    };
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return {
+      success: false,
+      message: "Failed to update product",
+    };
+  }
+}
+
+// Additional helper function to get a single product by ID (if needed)
+export async function getProductById(productId: string) {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return {
+        success: false,
+        message: "Product not found",
+      };
+    }
+
+    return {
+      success: true,
+      product,
+    };
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return {
+      success: false,
+      message: "Failed to fetch product",
+    };
+  }
+}
+
+// Function to delete a product (bonus functionality)
+export async function deleteProduct(productId: string) {
+  try {
+    const existingProduct = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!existingProduct) {
+      return {
+        success: false,
+        message: "Product not found",
+      };
+    }
+
+    await prisma.product.delete({
+      where: { id: productId },
+    });
+
+    // Revalidate relevant pages
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Product deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return {
+      success: false,
+      message: "Failed to delete product",
+    };
+  }
+}

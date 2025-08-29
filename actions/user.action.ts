@@ -2,12 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export const getDefaultAddress = async () => {
   try {
     const { userId } = await auth();
 
     if (!userId) {
+      redirect("/sign-in");
       return { success: false, message: "Authentication required" };
     }
 
@@ -31,6 +33,7 @@ export const setDefaultAddress = async (address: string) => {
     const { userId } = await auth();
 
     if (!userId) {
+      redirect("/sign-in");
       return { success: false, message: "Authentication required" };
     }
 
@@ -60,6 +63,11 @@ export const setDefaultAddress = async (address: string) => {
 
 export const getUserById = async (id: string) => {
   try {
+    if (!id) {
+      redirect("/sign-in");
+      return { success: false, message: "User ID is required" };
+    }
+
     const user = await prisma.user.findUnique({
       where: {
         clerkId: id,

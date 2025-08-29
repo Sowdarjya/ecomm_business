@@ -3,12 +3,14 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function placeOrder(address: string) {
   try {
     const { userId } = await auth();
 
     if (!userId) {
+      redirect("/sign-in");
       return {
         success: false,
         message: "Authentication required",
@@ -143,6 +145,7 @@ export async function getOrderById(orderId: string) {
     const { userId } = await auth();
 
     if (!userId) {
+      redirect("/sign-in");
       return {
         success: false,
         message: "Authentication required",
@@ -199,6 +202,7 @@ export async function getUserOrders() {
     const { userId } = await auth();
 
     if (!userId) {
+      redirect("/sign-in");
       return {
         success: false,
         message: "Authentication required",
@@ -349,6 +353,55 @@ export async function getAllOrders() {
     return {
       success: false,
       message: "Failed to fetch orders",
+    };
+  }
+}
+
+export async function markOrderAsDelivered(orderId: string) {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      return {
+        success: false,
+        message: "Order not found",
+      };
+    }
+
+    if (order.status === "PENDING") {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: "COMPLETED" },
+      });
+
+      revalidatePath("/admin/orders");
+      return {
+        success: true,
+        message: "Order marked as completed",
+      };
+    } else if (order.status === "COMPLETED") {
+      return {
+        success: false,
+        message: "Order is already completed",
+      };
+    } else if (order.status === "CANCELED") {
+      return {
+        success: false,
+        message: "Cannot update a canceled order",
+      };
+    }
+
+    return {
+      success: false,
+      message: "Invalid order status",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to update order status",
     };
   }
 }

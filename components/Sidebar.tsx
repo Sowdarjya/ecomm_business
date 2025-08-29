@@ -3,21 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  Settings,
-  BarChart3,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, X } from "lucide-react";
 
 const sidebarItems = [
-  { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { title: "Products", href: "/admin/products", icon: Package },
   { title: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { title: "Customers", href: "/admin/customers", icon: Users },
 ];
 
 export function AdminSidebar({
