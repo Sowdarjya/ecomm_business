@@ -4,7 +4,7 @@ import { getWishlist, removeFromWishlist } from "@/actions/wishlist.action";
 import { addToCart } from "@/actions/product.action";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
 
 type WishlistItem = {
   id: string;
@@ -174,9 +175,12 @@ const Wishlist = () => {
               <p className="text-amber-700 mb-6">
                 Save items you love to view them later
               </p>
-              <Button className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white hover:from-amber-700 hover:to-yellow-600">
+              <Link
+                href={"/"}
+                className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white hover:from-amber-700 hover:to-yellow-600"
+              >
                 Continue Shopping
-              </Button>
+              </Link>
             </CardContent>
           </Card>
         ) : (
@@ -191,7 +195,7 @@ const Wishlist = () => {
                     {/* Product Image */}
                     <div className="aspect-square overflow-hidden">
                       <img
-                        src={item.images[0]}
+                        src={item.images[1]}
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
@@ -266,9 +270,7 @@ const Wishlist = () => {
                     <div className="flex items-center gap-2 mb-4">
                       <Package className="w-4 h-4 text-green-600" />
                       <span className="text-sm text-green-600">
-                        {item.stock > 0
-                          ? `${item.stock} in stock`
-                          : "Out of stock"}
+                        {item.stock > 0 ? "In stock" : "Out of stock"}
                       </span>
                     </div>
 

@@ -59,13 +59,14 @@ export function Header() {
                 <div className="px-3 py-2">
                   <div className="space-y-1">
                     {navItems.map((item) => (
-                      <SheetClose key={item.name} asChild>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start"
-                        >
+                      <SheetClose
+                        key={item.name}
+                        className="flex flex-col justify-center rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50"
+                        asChild
+                      >
+                        <Link href={item.href} className="w-full justify-start">
                           {item.name}
-                        </Button>
+                        </Link>
                       </SheetClose>
                     ))}
                   </div>
