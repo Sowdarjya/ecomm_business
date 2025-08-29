@@ -312,6 +312,17 @@ export default function ProductDetailsPage() {
               </div>
             )}
 
+            <Card className="border-amber-200 bg-white/60 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <h3 className="font-semibold text-amber-900 mb-3">
+                  Product Details:
+                </h3>
+                <p className="text-amber-800 leading-relaxed">
+                  {product.description}
+                </p>
+              </CardContent>
+            </Card>
+
             <div className="flex gap-4">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -382,17 +393,6 @@ export default function ProductDetailsPage() {
                         </Button>
                       </div>
                     </div>
-
-                    <Card className="border-amber-200 bg-white/60 backdrop-blur-sm">
-                      <CardContent className="p-6">
-                        <h3 className="font-semibold text-amber-900 mb-3">
-                          Product Details:
-                        </h3>
-                        <p className="text-amber-800 leading-relaxed">
-                          {product.description}
-                        </p>
-                      </CardContent>
-                    </Card>
 
                     <div className="flex gap-2 pt-4">
                       <Button
