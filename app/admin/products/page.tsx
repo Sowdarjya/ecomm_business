@@ -213,7 +213,7 @@ export default function AdminProducts() {
               {product.images?.length > 0 && (
                 <div className="relative aspect-square overflow-hidden">
                   <Image
-                    src={product.images[0] || "/placeholder.svg"}
+                    src={product.images[1] || "/placeholder.svg"}
                     alt={product.name}
                     width={300}
                     height={300}

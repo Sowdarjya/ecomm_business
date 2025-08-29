@@ -175,7 +175,7 @@ const ClothingCategory = () => {
               <div className="relative aspect-square overflow-hidden">
                 <img
                   src={
-                    product.images[0] || "/placeholder.svg?height=300&width=300"
+                    product.images[1] || "/placeholder.svg?height=300&width=300"
                   }
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
