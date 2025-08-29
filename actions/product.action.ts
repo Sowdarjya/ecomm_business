@@ -136,7 +136,7 @@ export const addToCart = async (
       });
     } else {
       const exsistingItem = cart.items.find(
-        (item: CartItem) => item.productId === productId
+        (item) => item.productId === productId
       );
 
       if (exsistingItem) {

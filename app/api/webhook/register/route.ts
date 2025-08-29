@@ -51,8 +51,8 @@ export async function POST(req: Request) {
         data: {
           clerkId: evt.data.id,
           email: evt.data.email_addresses[0].email_address,
-          name: `${evt.data.first_name} ${evt.data.last_name}`,
-          avatar: JSON.parse(body).data.image_url,
+          fullName: `${evt.data.first_name} ${evt.data.last_name}`,
+          avatarUrl: JSON.parse(body).data.image_url,
         },
       });
       return new Response("User has been created!", { status: 200 });
@@ -68,8 +68,8 @@ export async function POST(req: Request) {
           id: evt.data.id,
         },
         data: {
-          name: JSON.parse(body).data.first_name,
-          avatar: JSON.parse(body).data.image_url,
+          fullName: JSON.parse(body).data.first_name,
+          avatarUrl: JSON.parse(body).data.image_url,
         },
       });
       return new Response("User has been updated!", { status: 200 });

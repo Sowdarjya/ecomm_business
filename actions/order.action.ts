@@ -90,13 +90,17 @@ export async function placeOrder(address: string) {
 
         const orderItems = await Promise.all(
           cart.items.map(
-            (item: { productId: string; quantity: number; size: string }) =>
+            (item: {
+              productId: string;
+              quantity: number;
+              size: string | null;
+            }) =>
               tx.orderItem.create({
                 data: {
                   orderId: order.id,
                   productId: item.productId,
                   quantity: item.quantity,
-                  size: item.size,
+                  size: item.size ?? "",
                 },
               })
           )
