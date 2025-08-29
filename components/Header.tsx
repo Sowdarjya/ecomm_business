@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag, User, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,19 +9,13 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  SignOutButton,
-  SignUpButton,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
+import { SignOutButton, SignUpButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { getCartQuantity } from "@/actions/product.action";
 
 export function Header() {
-  const { isSignedIn } = useUser();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { isSignedIn, user } = useUser();
   const [cartQuantity, setCartQuantity] = useState(0);
 
   const fetchCartQuantity = async () => {
@@ -44,9 +38,10 @@ export function Header() {
   }, []);
 
   const navItems = [
-    { name: "Clothing", href: "#" },
+    { name: "Clothing", href: "/#clothing" },
     { name: "Accessories", href: "#" },
     { name: "Apparel", href: "#" },
+    { name: "Wishlist", href: "/wishlist" },
   ];
 
   return (
@@ -99,12 +94,16 @@ export function Header() {
           <div className="flex items-center space-x-4">
             {isSignedIn ? (
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon">
+                <Link href={`/profile/${user.id}`}>
                   <User className="h-5 w-5" />
                   <span className="sr-only">Account</span>
-                </Button>
+                </Link>
 
-                <Button variant="ghost" size="icon" className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative cursor-pointer"
+                >
                   <Link href="/cart">
                     <ShoppingBag className="h-5 w-5" />
                     {cartQuantity > 0 && (

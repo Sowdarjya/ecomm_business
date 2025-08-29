@@ -57,3 +57,29 @@ export const setDefaultAddress = async (address: string) => {
     return { success: false, message: "Failed to set default address" };
   }
 };
+
+export const getUserById = async (id: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkId: id,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        avatarUrl: true,
+        address: true,
+      },
+    });
+
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true, user };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to fetch user" };
+  }
+};

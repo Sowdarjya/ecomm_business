@@ -10,11 +10,9 @@ import Link from "next/link";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
 import {
@@ -108,21 +106,6 @@ const ClothingCategory = () => {
     }
   };
 
-  const handleAddToWishlist = async (productId: string) => {
-    try {
-      const response = await addToWishlist(productId);
-
-      if (response.success) {
-        toast.success("Item added to wishlist");
-      } else {
-        toast.error("Unable to add item to wishlist");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Unable to add item to wishlist");
-    }
-  };
-
   const handleAddToCart = async (
     id: string,
     quantity?: number,
@@ -167,7 +150,10 @@ const ClothingCategory = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 p-6">
+    <div
+      id="clothing"
+      className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 p-6"
+    >
       <div className="max-w-7xl mx-auto mb-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-amber-900 mb-4">
@@ -200,13 +186,13 @@ const ClothingCategory = () => {
                   <Button
                     size="sm"
                     variant="secondary"
-                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white cursor-pointer"
                     onClick={() => toggleWishlist(product.id)}
                   >
                     {wishlist.includes(product.id) ? (
-                      <Heart className="h-4 w-4 text-red-500 fill-red-500" /> // filled
+                      <Heart className="h-4 w-4 text-red-500 fill-red-500" />
                     ) : (
-                      <Heart className="h-4 w-4 text-red-500" /> // outline
+                      <Heart className="h-4 w-4 text-red-500" />
                     )}
                   </Button>
 
@@ -214,7 +200,7 @@ const ClothingCategory = () => {
                     <Button
                       size="sm"
                       variant="secondary"
-                      className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                      className="h-8 w-8 p-0 bg-white/90 hover:bg-white cursor-pointer"
                     >
                       <ArrowRight className="h-4 w-4 text-amber-600" />
                     </Button>
