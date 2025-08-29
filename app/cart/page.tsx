@@ -37,7 +37,7 @@ const CartPage = () => {
       price: number;
       images: string[];
       category: "CLOTHING" | "ACCESSORIES";
-      size: String[];
+      size: string[];
       stock: number;
     };
   };
@@ -53,21 +53,18 @@ const CartPage = () => {
     try {
       setLoading(true);
       const items = await getUserCartItems();
-
       if (items.success) {
         setCartItems(items.items ?? []);
       } else {
         toast.error(items.message || "Failed to fetch cart items");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to fetch cart items");
     } finally {
       setLoading(false);
     }
   };
-
-  console.log(cartItems);
 
   const fetchDefaultAddress = async () => {
     try {
@@ -76,7 +73,7 @@ const CartPage = () => {
         setAddress(result.address || "");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -105,7 +102,7 @@ const CartPage = () => {
         toast.error(result.message || "Failed to place order");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to place order");
     } finally {
       setIsPlacingOrder(false);
@@ -116,22 +113,13 @@ const CartPage = () => {
     fetchCartItems();
   }, []);
 
-  const updateQuantity = (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
   const removeItem = async (itemId: string) => {
     try {
       await removeCartItem(itemId);
       fetchCartItems();
       toast.success("Item removed from cart");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Failed to remove item");
     }
   };
@@ -140,14 +128,15 @@ const CartPage = () => {
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
-  const shipping = subtotal > 1000 ? 0 : 50;
-  const total = subtotal + shipping;
+  // Shipping removed; always zero
+  const shipping = 0;
+  const total = subtotal;
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4" />
           <p className="text-amber-800">Loading cart...</p>
         </div>
       </div>
@@ -197,7 +186,7 @@ const CartPage = () => {
                     <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-amber-100">
                       <Image
                         src={
-                          item.product.images[0] ||
+                          item.product.images[1] ||
                           "/placeholder.svg?height=96&width=96"
                         }
                         alt={item.product.name}
@@ -205,7 +194,6 @@ const CartPage = () => {
                         className="object-cover"
                       />
                     </div>
-
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -242,7 +230,6 @@ const CartPage = () => {
                             Quantity: {item.quantity}
                           </span>
                         </div>
-
                         <div className="text-right">
                           <p className="text-lg font-bold text-amber-900">
                             ₹{item.product.price * item.quantity}
@@ -271,17 +258,10 @@ const CartPage = () => {
                     <span>Subtotal ({cartItems.length} items)</span>
                     <span>₹{subtotal}</span>
                   </div>
-                  <div className="flex justify-between text-amber-800">
+                  <div className="flex justify-between text-green-600">
                     <span>Delivery Charge</span>
-                    <span className={shipping === 0 ? "text-green-600" : ""}>
-                      {shipping === 0 ? "Free" : `₹${shipping}`}
-                    </span>
+                    <span>Free</span>
                   </div>
-                  {shipping === 0 && (
-                    <p className="text-xs text-green-600">
-                      Free delivery on orders ₹1000+!
-                    </p>
-                  )}
                   <div className="border-t border-amber-200 pt-4">
                     <div className="flex justify-between text-xl font-bold text-amber-900">
                       <span>Total</span>
@@ -300,6 +280,7 @@ const CartPage = () => {
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </DialogTrigger>
+
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle className="text-amber-900">
@@ -329,7 +310,6 @@ const CartPage = () => {
                           }
                           className="border-amber-300"
                         />
-
                         <Label
                           htmlFor="setDefault"
                           className="text-sm text-amber-700"
@@ -343,7 +323,6 @@ const CartPage = () => {
                           <span>Total Amount:</span>
                           <span>₹{total}</span>
                         </div>
-
                         <Button
                           onClick={handleCheckout}
                           disabled={isPlacingOrder || !address.trim()}
@@ -355,17 +334,6 @@ const CartPage = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-
-                <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                  <h3 className="font-semibold text-amber-900 mb-2">
-                    Benefits
-                  </h3>
-                  <ul className="text-sm text-amber-700 space-y-1">
-                    <li>• 7 day return policy</li>
-                    <li>• Cash on delivery</li>
-                    <li>• 24/7 customer support</li>
-                  </ul>
-                </div>
               </CardContent>
             </Card>
           </div>

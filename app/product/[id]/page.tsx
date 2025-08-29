@@ -54,7 +54,7 @@ export default function ProductDetailsPage() {
   const params = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
   const [cartQuantity, setCartQuantity] = useState(1);
@@ -383,6 +383,17 @@ export default function ProductDetailsPage() {
                       </div>
                     </div>
 
+                    <Card className="border-amber-200 bg-white/60 backdrop-blur-sm">
+                      <CardContent className="p-6">
+                        <h3 className="font-semibold text-amber-900 mb-3">
+                          Product Details:
+                        </h3>
+                        <p className="text-amber-800 leading-relaxed">
+                          {product.description}
+                        </p>
+                      </CardContent>
+                    </Card>
+
                     <div className="flex gap-2 pt-4">
                       <Button
                         variant="outline"
@@ -415,41 +426,6 @@ export default function ProductDetailsPage() {
                 )}
               </Button>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-200">
-                <Truck className="h-5 w-5 text-amber-600" />
-                <div>
-                  <p className="font-medium text-amber-900">Free Delivery</p>
-                  <p className="text-xs text-amber-700">On orders above ₹500</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-200">
-                <Shield className="h-5 w-5 text-amber-600" />
-                <div>
-                  <p className="font-medium text-amber-900">Warranty</p>
-                  <p className="text-xs text-amber-700">1 Year Warranty</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-200">
-                <RotateCcw className="h-5 w-5 text-amber-600" />
-                <div>
-                  <p className="font-medium text-amber-900">Returns</p>
-                  <p className="text-xs text-amber-700">7 Day Returns</p>
-                </div>
-              </div>
-            </div>
-
-            <Card className="border-amber-200 bg-white/60 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-amber-900 mb-3">
-                  Product Details:
-                </h3>
-                <p className="text-amber-800 leading-relaxed">
-                  {product.description}
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
