@@ -31,6 +31,11 @@ import {
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { addToCart, getProductDetails } from "@/actions/product.action";
+import {
+  addToWishlist,
+  getWishlist,
+  removeFromWishlist,
+} from "@/actions/wishlist.action";
 
 type Product = {
   id: string;
@@ -53,6 +58,7 @@ export default function ProductDetailsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
   const [cartQuantity, setCartQuantity] = useState(1);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -75,7 +81,19 @@ export default function ProductDetailsPage() {
       }
     };
 
+    const fetchWishlist = async () => {
+      try {
+        const res: { success: boolean; items?: any[] } = await getWishlist();
+        if (res.success && res.items) {
+          setWishlist(res.items.map((item: any) => item.id));
+        }
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+
     fetchProduct();
+    fetchWishlist();
   }, [params.id]);
   const handleAddToCart = async () => {
     if (!selectedSize) {
@@ -95,8 +113,30 @@ export default function ProductDetailsPage() {
     }
   };
 
-  const handleAddToWishlist = () => {
-    toast.success("Added to wishlist!");
+  const toggleWishlist = async () => {
+    if (!product) return;
+    try {
+      if (wishlist.includes(product.id)) {
+        const res = await removeFromWishlist(product.id);
+        if (res.success) {
+          setWishlist((prev) => prev.filter((id) => id !== product.id));
+          toast.success("Removed from wishlist");
+        } else {
+          toast.error(res.message || "Failed to remove from wishlist");
+        }
+      } else {
+        const res = await addToWishlist(product.id);
+        if (res.success) {
+          setWishlist((prev) => [...prev, product.id]);
+          toast.success("Added to wishlist");
+        } else {
+          toast.error(res.message || "Failed to add to wishlist");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Wishlist update failed");
+    }
   };
 
   const openCartDialog = () => {
@@ -235,7 +275,6 @@ export default function ProductDetailsPage() {
                 <span className="text-xl text-gray-500 line-through">
                   ₹{(product.price + 100).toLocaleString()}
                 </span>
-                <Badge className="bg-green-100 text-green-800">17% Off</Badge>
               </div>
 
               <div className="flex items-center gap-2 mb-6">
@@ -366,10 +405,14 @@ export default function ProductDetailsPage() {
 
               <Button
                 variant="outline"
-                onClick={handleAddToWishlist}
+                onClick={toggleWishlist}
                 className="border-amber-300 text-amber-700 hover:bg-amber-100 px-4 bg-transparent cursor-pointer"
               >
-                <Heart className="h-5 w-5" />
+                {wishlist.includes(product.id) ? (
+                  <Heart className="h-5 w-5 text-red-500 fill-red-500" />
+                ) : (
+                  <Heart className="h-5 w-5" />
+                )}
               </Button>
             </div>
 

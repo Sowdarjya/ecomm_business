@@ -15,33 +15,35 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId   String   @unique
-  email     String   @unique
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId   String    @unique
+  email     String    @unique
   fullName  String
   avatarUrl String
-  address   String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  address   String    @default("")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   Cart      Cart[]
   Order     Order[]
+  Wishlist  Wishlist?
 
   @@map("users")
 }
 
 model Product {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  price       Float
-  images      String[]
-  category    Category
-  size        String[]    @default([])
-  stock       Int
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  CartItems   CartItem[]
-  OrderItem   OrderItem[]
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  description  String
+  price        Float
+  images       String[]
+  category     Category
+  size         String[]       @default([])
+  stock        Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  CartItems    CartItem[]
+  OrderItem    OrderItem[]
+  WishlistItem WishlistItem[]
 
   @@map("products")
 }
@@ -92,6 +94,26 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("orderItems")
+}
+
+model Wishlist {
+  id       String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String         @unique @db.ObjectId
+  products WishlistItem[]
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  wishlistId String   @db.ObjectId
+  productId  String   @db.ObjectId
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@map("wishlistItems")
 }
 
 enum Category {

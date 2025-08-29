@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
+import { ShoppingBag, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+import {
+  SignOutButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { getCartQuantity } from "@/actions/product.action";
@@ -93,42 +97,8 @@ export function Header() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center">
-              {isSearchOpen ? (
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="search"
-                    placeholder="Search..."
-                    className="w-64"
-                    autoFocus
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsSearchOpen(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSearchOpen(true)}
-                >
-                  <Search className="h-5 w-5" />
-                  <span className="sr-only">Search</span>
-                </Button>
-              )}
-            </div>
-
-            <Button variant="ghost" size="icon" className="sm:hidden">
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Button>
-
             {isSignedIn ? (
-              <div>
+              <div className="flex items-center space-x-2">
                 <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
                   <span className="sr-only">Account</span>
@@ -137,14 +107,23 @@ export function Header() {
                 <Button variant="ghost" size="icon" className="relative">
                   <Link href="/cart">
                     <ShoppingBag className="h-5 w-5" />
-                    <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs text-accent-foreground flex items-center justify-center">
-                      {cartQuantity > 0 ? cartQuantity : ""}
-                    </span>
+                    {cartQuantity > 0 && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs text-accent-foreground flex items-center justify-center">
+                        {cartQuantity > 0 ? cartQuantity : ""}
+                      </span>
+                    )}
                     <span className="sr-only">Shopping bag</span>
                   </Link>
                 </Button>
 
-                <UserButton />
+                <SignOutButton>
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer text-secondary bg-accent"
+                  >
+                    Sign Out
+                  </Button>
+                </SignOutButton>
               </div>
             ) : (
               <SignUpButton>

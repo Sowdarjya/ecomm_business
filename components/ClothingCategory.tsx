@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Heart, Star, ArrowRight } from "lucide-react";
+import { ShoppingCart, Heart, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import {
   Dialog,
@@ -17,6 +17,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
+import {
+  addToWishlist,
+  getWishlist,
+  removeFromWishlist,
+} from "@/actions/wishlist.action";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 type Product = {
   id: string;
@@ -41,6 +53,7 @@ const ClothingCategory = () => {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [saving, setSaving] = useState(false);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -55,6 +68,60 @@ const ClothingCategory = () => {
     };
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const res: { success: boolean; items?: any[] } = await getWishlist();
+        if (res.success && res.items) {
+          setWishlist(res.items.map((item: any) => item.id));
+        }
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+    fetchWishlist();
+  }, []);
+
+  const toggleWishlist = async (productId: string) => {
+    try {
+      if (wishlist.includes(productId)) {
+        const res = await removeFromWishlist(productId);
+        if (res.success) {
+          setWishlist((prev) => prev.filter((id) => id !== productId));
+          toast.success("Removed from wishlist");
+        } else {
+          toast.error(res.message || "Unable to remove from wishlist");
+        }
+      } else {
+        const res = await addToWishlist(productId);
+        if (res.success) {
+          setWishlist((prev) => [...prev, productId]);
+          toast.success("Added to wishlist");
+        } else {
+          toast.error(res.message || "Unable to add to wishlist");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Wishlist update failed");
+    }
+  };
+
+  const handleAddToWishlist = async (productId: string) => {
+    try {
+      const response = await addToWishlist(productId);
+
+      if (response.success) {
+        toast.success("Item added to wishlist");
+      } else {
+        toast.error("Unable to add item to wishlist");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Unable to add item to wishlist");
+    }
+  };
 
   const handleAddToCart = async (
     id: string,
@@ -134,9 +201,15 @@ const ClothingCategory = () => {
                     size="sm"
                     variant="secondary"
                     className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                    onClick={() => toggleWishlist(product.id)}
                   >
-                    <Heart className="h-4 w-4 text-red-500" />
+                    {wishlist.includes(product.id) ? (
+                      <Heart className="h-4 w-4 text-red-500 fill-red-500" /> // filled
+                    ) : (
+                      <Heart className="h-4 w-4 text-red-500" /> // outline
+                    )}
                   </Button>
+
                   <Link href={`/products/${product.id}`}>
                     <Button
                       size="sm"
@@ -225,71 +298,92 @@ const ClothingCategory = () => {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Add to cart</DialogTitle>
+              <DialogTitle>Add to Cart</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-2">
-              <div className="grid gap-2">
-                <Label htmlFor="size">Size</Label>
-                <Input
-                  id="size"
-                  placeholder="e.g. S, M, L or 38"
-                  value={selectedSize}
-                  onChange={(e) => setSelectedSize(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="qty">Quantity</Label>
-                <div className="flex items-center gap-2">
+            <div className="space-y-4">
+              {selectedProduct?.size && selectedProduct.size.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Select Size
+                  </label>
+                  <Select value={selectedSize} onValueChange={setSelectedSize}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedProduct.size.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Quantity Selector */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  Quantity
+                </Label>
+                <div className="flex items-center gap-3">
                   <Button
-                    type="button"
                     variant="outline"
-                    className="h-9 w-9 p-0 bg-transparent"
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    size="sm"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="border-amber-300"
                     disabled={saving}
                   >
                     -
                   </Button>
-                  <Input
-                    id="qty"
-                    type="number"
-                    min={1}
-                    value={quantity}
-                    onChange={(e) =>
-                      setQuantity(Math.max(1, Number(e.target.value || 1)))
-                    }
-                    className="w-20 text-center"
-                  />
+                  <span className="w-12 text-center font-medium">
+                    {quantity}
+                  </span>
                   <Button
-                    type="button"
                     variant="outline"
-                    className="h-9 w-9 p-0 bg-transparent"
-                    onClick={() => setQuantity((q) => q + 1)}
+                    size="sm"
+                    onClick={() =>
+                      setQuantity(
+                        Math.min(selectedProduct?.stock ?? 1, quantity + 1)
+                      )
+                    }
+                    className="border-amber-300"
                     disabled={saving}
                   >
                     +
                   </Button>
                 </div>
               </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setDialogOpen(false)}
+                  disabled={saving}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() =>
+                    handleAddToCart(
+                      selectedProduct?.id!,
+                      quantity,
+                      selectedSize
+                    )
+                  }
+                  disabled={
+                    saving ||
+                    !selectedSize ||
+                    (selectedProduct?.stock ?? 0) === 0
+                  }
+                  className="flex-1 bg-amber-600 hover:bg-amber-700"
+                >
+                  {saving ? "Adding..." : "Add to Cart"}
+                </Button>
+              </div>
             </div>
-            <DialogFooter>
-              <Button
-                variant="ghost"
-                onClick={() => setDialogOpen(false)}
-                disabled={saving}
-                className="cursor-pointer"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() =>
-                  handleAddToCart(selectedProduct?.id!, quantity, selectedSize)
-                }
-                disabled={saving || (selectedProduct?.stock ?? 0) === 0}
-                className="bg-gradient-to-r cursor-pointer from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white"
-              >
-                {saving ? "Adding..." : "Confirm"}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

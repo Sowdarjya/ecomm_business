@@ -85,6 +85,7 @@ export async function placeOrder(address: string) {
               orderId: order.id,
               productId: item.productId,
               quantity: item.quantity,
+              size: item.size,
             },
           })
         )
@@ -233,6 +234,118 @@ export async function getUserOrders() {
     };
   } catch (error) {
     console.error("Error fetching orders:", error);
+    return {
+      success: false,
+      message: "Failed to fetch orders",
+    };
+  }
+}
+
+export async function cancelOrder(orderId: string) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return {
+        success: false,
+        message: "Authentication required",
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, userId: user.id },
+      include: { items: true },
+    });
+
+    if (!order) {
+      return {
+        success: false,
+        message: "Order not found",
+      };
+    }
+
+    if (order.status !== "PENDING") {
+      return {
+        success: false,
+        message: "Only pending orders can be cancelled",
+      };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await Promise.all(
+        order.items.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                increment: item.quantity,
+              },
+            },
+          })
+        )
+      );
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: { status: "CANCELED" },
+      });
+
+      revalidatePath("/cart");
+      revalidatePath("/");
+    });
+
+    return {
+      success: true,
+      message: "Order cancelled successfully",
+      orderId: order.id,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Failed to cancel order",
+    };
+  }
+}
+
+export async function getAllOrders() {
+  try {
+    const orders = await prisma.order.findMany({
+      where: {
+        status: {
+          not: "CANCELED",
+        },
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+        user: {
+          select: {
+            fullName: true,
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      orders,
+    };
+  } catch (error) {
+    console.log(error);
     return {
       success: false,
       message: "Failed to fetch orders",
