@@ -8,6 +8,24 @@ import { redirect } from "next/navigation";
 
 type Category = "CLOTHING" | "ACCESSORIES";
 
+interface CartItem {
+  id: string;
+  cartId: string;
+  productId: string;
+  quantity: number;
+  size?: string; // optional
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    images: string[];
+    category: "CLOTHING" | "ACCESSORIES";
+    size: string[];
+    stock: number;
+  };
+}
+
 export const getProducts = async () => {
   return await prisma.product.findMany();
 };
@@ -118,7 +136,7 @@ export const addToCart = async (
       });
     } else {
       const exsistingItem = cart.items.find(
-        (item) => item.productId === productId
+        (item: CartItem) => item.productId === productId
       );
 
       if (exsistingItem) {
@@ -257,8 +275,8 @@ export const getCartQuantity = async () => {
     }
 
     const quantity = cart.items
-      .map((item) => item.quantity)
-      .reduce((a, b) => a + b, 0);
+      .map((item: { quantity: number }) => item.quantity)
+      .reduce((a: number, b: number) => a + b, 0);
 
     revalidatePath("/cart");
     revalidatePath("/");

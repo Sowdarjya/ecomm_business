@@ -131,7 +131,7 @@ export const getWishlist = async () => {
       return { success: true, items: [] };
     }
 
-    const items = wishlist.products.map((p) => p.product);
+    const items = wishlist.products.map((p: any) => p.product);
 
     return { success: true, items };
   } catch (error) {

@@ -2,8 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+interface OrderItem {
+  productId: string;
+  quantity: number;
+}
 
 export async function placeOrder(address: string) {
   try {
@@ -63,58 +69,67 @@ export async function placeOrder(address: string) {
     }
 
     const totalPrice = cart.items.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
+      (sum: number, item: { product: { price: number }; quantity: number }) =>
+        sum + item.product.price * item.quantity,
       0
     );
 
     const shipping = totalPrice > 1000 ? 0 : 50;
     const finalTotal = totalPrice + shipping;
 
-    const result = await prisma.$transaction(async (tx) => {
-      const order = await tx.order.create({
-        data: {
-          userId: user.id,
-          totalPrice: finalTotal,
-          location: address.trim(),
-          status: "PENDING",
-        },
-      });
+    const result = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        const order = await tx.order.create({
+          data: {
+            userId: user.id,
+            totalPrice: finalTotal,
+            location: address.trim(),
+            status: "PENDING",
+          },
+        });
 
-      const orderItems = await Promise.all(
-        cart.items.map((item) =>
-          tx.orderItem.create({
-            data: {
-              orderId: order.id,
-              productId: item.productId,
-              quantity: item.quantity,
-              size: item.size,
-            },
-          })
-        )
-      );
+        const orderItems = await Promise.all(
+          cart.items.map(
+            (item: { productId: string; quantity: number; size: string }) =>
+              tx.orderItem.create({
+                data: {
+                  orderId: order.id,
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  size: item.size,
+                },
+              })
+          )
+        );
 
-      await Promise.all(
-        cart.items.map((item) =>
-          tx.product.update({
-            where: { id: item.productId },
-            data: {
-              stock: {
-                decrement: item.quantity,
-              },
-            },
-          })
-        )
-      );
+        await Promise.all(
+          cart.items.map(
+            (item: {
+              productId: string;
+              quantity: number;
+              size: string | null;
+            }) =>
+              tx.product.update({
+                where: { id: item.productId },
+                data: {
+                  stock: {
+                    decrement: item.quantity,
+                  },
+                },
+              })
+          )
+        );
 
-      await tx.cartItem.deleteMany({
-        where: { cartId: cart.id },
-      });
+        await tx.cartItem.deleteMany({
+          where: { cartId: cart.id },
+        });
 
-      return {
-        order,
-        orderItems,
-      };
-    });
+        return {
+          order,
+          orderItems,
+        };
+      }
+    );
 
     await prisma.user.update({
       where: { id: user.id },
@@ -285,9 +300,9 @@ export async function cancelOrder(orderId: string) {
       };
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await Promise.all(
-        order.items.map((item) =>
+        order.items.map((item: OrderItem) =>
           tx.product.update({
             where: { id: item.productId },
             data: {
@@ -303,10 +318,10 @@ export async function cancelOrder(orderId: string) {
         where: { id: order.id },
         data: { status: "CANCELED" },
       });
-
-      revalidatePath("/cart");
-      revalidatePath("/");
     });
+
+    revalidatePath("/orders");
+    revalidatePath("/");
 
     return {
       success: true,
