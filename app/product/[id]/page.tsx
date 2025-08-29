@@ -205,10 +205,6 @@ export default function ProductDetailsPage() {
                 Go back
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" className="text-amber-700">
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
           </div>
         </div>
       </div>
@@ -217,7 +213,7 @@ export default function ProductDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-4">
             <Card className="overflow-hidden border-amber-200 bg-white/80 backdrop-blur-sm">
-              <div className="aspect-square relative">
+              <div className="aspect-square relative h-[75%] overflow-hidden object-cover">
                 <img
                   src={
                     product.images[selectedImage] ||
@@ -235,28 +231,6 @@ export default function ProductDetailsPage() {
                 )}
               </div>
             </Card>
-
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
-                <Card
-                  key={index}
-                  className={`cursor-pointer overflow-hidden border-2 transition-all ${
-                    selectedImage === index
-                      ? "border-amber-500 ring-2 ring-amber-200"
-                      : "border-amber-200 hover:border-amber-400"
-                  }`}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <div className="aspect-square">
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </Card>
-              ))}
-            </div>
           </div>
 
           <div className="space-y-6">
@@ -425,6 +399,28 @@ export default function ProductDetailsPage() {
                   <Heart className="h-5 w-5" />
                 )}
               </Button>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2">
+              {product.images.map((image, index) => (
+                <Card
+                  key={index}
+                  className={`cursor-pointer overflow-hidden border-2 transition-all ${
+                    selectedImage === index
+                      ? "border-amber-500 ring-2 ring-amber-200"
+                      : "border-amber-200 hover:border-amber-400"
+                  }`}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <div className="aspect-square overflow-hidden ">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
