@@ -196,7 +196,7 @@ const ClothingCategory = () => {
                     )}
                   </Button>
 
-                  <Link href={`/products/${product.id}`}>
+                  <Link href={`/product/${product.id}`}>
                     <Button
                       size="sm"
                       variant="secondary"

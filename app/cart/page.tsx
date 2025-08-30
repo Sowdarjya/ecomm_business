@@ -200,9 +200,7 @@ const CartPage = () => {
                           <h3 className="font-semibold text-amber-900 text-lg">
                             {item.product.name}
                           </h3>
-                          <p className="text-amber-700 text-sm">
-                            {item.product.description}
-                          </p>
+
                           <div className="flex gap-4 mt-1">
                             <span className="text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded-full">
                               {item.product.category}
