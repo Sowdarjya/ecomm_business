@@ -69,7 +69,6 @@ export default function ProductDetailsPage() {
         );
         if (success && product) {
           console.log(product);
-
           setProduct(product);
           setLoading(false);
         } else {
@@ -96,6 +95,7 @@ export default function ProductDetailsPage() {
     fetchProduct();
     fetchWishlist();
   }, [params.id]);
+
   const handleAddToCart = async () => {
     if (!selectedSize) {
       toast.error("Please select a size");
@@ -216,50 +216,58 @@ export default function ProductDetailsPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <Card className="overflow-hidden border-amber-200 bg-white/80 backdrop-blur-sm">
-              <div className="aspect-square relative h-[75%] overflow-hidden object-cover">
-                <img
-                  src={
-                    product.images[selectedImage] ||
-                    "/placeholder.svg?height=600&width=600"
-                  }
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-                {product.stock === 0 && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge className="bg-red-500 text-white text-lg px-4 py-2">
-                      Out of Stock
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2">
-            {product.images.map((image, index) => (
-              <Card
-                key={index}
-                className={`cursor-pointer overflow-hidden border-2 transition-all ${
-                  selectedImage === index
-                    ? "border-amber-500 ring-2 ring-amber-200"
-                    : "border-amber-200 hover:border-amber-400"
-                }`}
-                onClick={() => setSelectedImage(index)}
-              >
-                <div className="aspect-square overflow-hidden ">
+          {/* Left side - Images */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Main Image */}
+            <div className="flex-1">
+              <Card className="overflow-hidden border-amber-200 bg-white/80 backdrop-blur-sm">
+                <div className="aspect-square relative overflow-hidden">
                   <img
-                    src={image || "/placeholder.svg"}
-                    alt={`${product.name} ${index + 1}`}
+                    src={
+                      product.images[selectedImage] ||
+                      "/placeholder.svg?height=600&width=600"
+                    }
+                    alt={product.name}
                     className="w-full h-full object-cover"
                   />
+                  {product.stock === 0 && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <Badge className="bg-red-500 text-white text-lg px-4 py-2">
+                        Out of Stock
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </Card>
-            ))}
+            </div>
+
+            {/* Thumbnail Images */}
+            <div className="lg:w-24">
+              <div className="grid grid-cols-4 lg:grid-cols-1 gap-2">
+                {product.images.map((image, index) => (
+                  <Card
+                    key={index}
+                    className={`cursor-pointer overflow-hidden border-2 transition-all ${
+                      selectedImage === index
+                        ? "border-amber-500 ring-2 ring-amber-200"
+                        : "border-amber-200 hover:border-amber-400"
+                    }`}
+                    onClick={() => setSelectedImage(index)}
+                  >
+                    <div className="aspect-square overflow-hidden">
+                      <img
+                        src={image || "/placeholder.svg"}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
 
+          {/* Right side - Product Details */}
           <div className="space-y-6">
             <div>
               <Badge className="bg-amber-100 text-amber-800 mb-3">
@@ -409,7 +417,7 @@ export default function ProductDetailsPage() {
                         </Button>
                       ) : (
                         <Button
-                          onClick={(addToCart) => handleAddToCart()}
+                          onClick={handleAddToCart}
                           className="flex-1 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-medium py-3 text-lg"
                         >
                           Add to Cart
