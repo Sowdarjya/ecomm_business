@@ -11,7 +11,7 @@ interface OrderItem {
   quantity: number;
 }
 
-export async function placeOrder(address: string) {
+export async function placeOrder(address: string, contactNo: string) {
   try {
     const { userId } = await auth();
 
@@ -27,6 +27,13 @@ export async function placeOrder(address: string) {
       return {
         success: false,
         message: "Address is required",
+      };
+    }
+
+    if (!contactNo || contactNo.trim() === "") {
+      return {
+        success: false,
+        message: "Contact number is required",
       };
     }
 
@@ -84,6 +91,7 @@ export async function placeOrder(address: string) {
             userId: user.id,
             totalPrice: finalTotal,
             location: address.trim(),
+            contactNo: contactNo.trim(),
             status: "PENDING",
           },
         });
@@ -137,7 +145,10 @@ export async function placeOrder(address: string) {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { address: address.trim() },
+      data: {
+        address: address.trim(),
+        phone: contactNo.trim(),
+      },
     });
 
     revalidatePath("/cart");
@@ -218,9 +229,14 @@ export async function getOrderById(orderId: string) {
 
 export async function getUserOrders() {
   try {
-    const { userId } = await auth();
+    console.log("=== Starting getUserOrders ===");
+
+    const authResult = await auth();
+    const { userId } = authResult;
+    console.log("Auth result:", { userId, hasAuth: !!authResult });
 
     if (!userId) {
+      console.log("No userId, redirecting to sign-in");
       redirect("/sign-in");
       return {
         success: false,
@@ -228,17 +244,23 @@ export async function getUserOrders() {
       };
     }
 
+    console.log("Looking for user with clerkId:", userId);
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
+    });
+    console.log("Database user found:", {
+      userId: user?.id,
+      clerkId: user?.clerkId,
     });
 
     if (!user) {
       return {
         success: false,
-        message: "User not found",
+        message: "User not found in database",
       };
     }
 
+    console.log("Fetching orders for userId:", user.id);
     const orders = await prisma.order.findMany({
       where: { userId: user.id },
       include: {
@@ -250,16 +272,29 @@ export async function getUserOrders() {
       },
       orderBy: { createdAt: "desc" },
     });
+    console.log(
+      "Orders found:",
+      orders.length,
+      orders.map((o) => ({ id: o.id, status: o.status }))
+    );
 
     return {
       success: true,
       orders,
     };
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    console.error("=== ERROR in getUserOrders ===");
+    console.error("Error type:", error?.constructor?.name);
+    console.error(
+      "Error message:",
+      error instanceof Error ? error.message : error
+    );
+    console.error("Full error:", error);
     return {
       success: false,
-      message: "Failed to fetch orders",
+      message: `Database error: ${
+        error instanceof Error ? error.message : "Unknown database error"
+      }`,
     };
   }
 }

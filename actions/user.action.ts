@@ -61,6 +61,63 @@ export const setDefaultAddress = async (address: string) => {
   }
 };
 
+export const getDefaultPhone = async () => {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      redirect("/sign-in");
+      return { success: false, message: "Authentication required" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    return { success: true, phone: user.phone || "" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to fetch phone number" };
+  }
+};
+
+export const setDefaultPhone = async (phone: string) => {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      redirect("/sign-in");
+      return { success: false, message: "Authentication required" };
+    }
+
+    if (!phone || phone.trim() === "") {
+      return { success: false, message: "Phone number is required" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { phone: phone.trim() },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to set default phone number" };
+  }
+};
+
 export const getUserById = async (id: string) => {
   try {
     if (!id) {
@@ -78,6 +135,7 @@ export const getUserById = async (id: string) => {
         email: true,
         avatarUrl: true,
         address: true,
+        phone: true,
       },
     });
 

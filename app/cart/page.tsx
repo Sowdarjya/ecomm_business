@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, Phone, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -19,7 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { placeOrder } from "@/actions/order.action";
-import { getDefaultAddress, setDefaultAddress } from "@/actions/user.action";
+import {
+  getDefaultAddress,
+  setDefaultAddress,
+  getDefaultPhone,
+  setDefaultPhone,
+} from "@/actions/user.action";
 
 const CartPage = () => {
   type CartItem = {
@@ -46,7 +51,9 @@ const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [address, setAddress] = useState("");
-  const [setAsDefault, setSetAsDefault] = useState(false);
+  const [contactNo, setContactNo] = useState("");
+  const [setAsDefaultAddress, setSetAsDefaultAddress] = useState(false);
+  const [setAsDefaultPhone, setSetAsDefaultPhone] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const fetchCartItems = async () => {
@@ -66,11 +73,16 @@ const CartPage = () => {
     }
   };
 
-  const fetchDefaultAddress = async () => {
+  const fetchDefaultDetails = async () => {
     try {
-      const result = await getDefaultAddress();
-      if (result.success) {
-        setAddress(result.address || "");
+      const addressResult = await getDefaultAddress();
+      if (addressResult.success) {
+        setAddress(addressResult.address || "");
+      }
+
+      const phoneResult = await getDefaultPhone();
+      if (phoneResult.success) {
+        setContactNo(phoneResult.phone || "");
       }
     } catch (error) {
       console.error(error);
@@ -83,17 +95,37 @@ const CartPage = () => {
       return;
     }
 
+    if (!contactNo.trim()) {
+      toast.error("Please enter your contact number");
+      return;
+    }
+
+    // Basic phone number validation
+    const phoneRegex = /^[+]?[1-9][\d\s\-\(\)]{7,14}$/;
+    if (!phoneRegex.test(contactNo.trim())) {
+      toast.error("Please enter a valid contact number");
+      return;
+    }
+
     setIsPlacingOrder(true);
     try {
-      if (setAsDefault) {
-        const setDefaultResult = await setDefaultAddress(address);
-        if (!setDefaultResult.success) {
+      if (setAsDefaultAddress) {
+        const setDefaultAddressResult = await setDefaultAddress(address);
+        if (!setDefaultAddressResult.success) {
           toast.error("Failed to set default address");
           return;
         }
       }
 
-      const result = await placeOrder(address);
+      if (setAsDefaultPhone) {
+        const setDefaultPhoneResult = await setDefaultPhone(contactNo);
+        if (!setDefaultPhoneResult.success) {
+          toast.error("Failed to set default phone number");
+          return;
+        }
+      }
+
+      const result = await placeOrder(address, contactNo);
       if (result.success) {
         toast.success("Order placed successfully!");
         setIsCheckoutOpen(false);
@@ -272,7 +304,7 @@ const CartPage = () => {
                   <DialogTrigger asChild>
                     <Button
                       className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 rounded-full text-lg shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
-                      onClick={fetchDefaultAddress}
+                      onClick={fetchDefaultDetails}
                     >
                       Checkout
                       <ArrowRight className="ml-2 h-5 w-5" />
@@ -281,13 +313,18 @@ const CartPage = () => {
 
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle className="text-amber-900">
-                        Checkout
+                      <DialogTitle className="text-amber-900 flex items-center gap-2">
+                        <ShoppingBag className="h-5 w-5" />
+                        Checkout Details
                       </DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="address" className="text-amber-800">
+                        <Label
+                          htmlFor="address"
+                          className="text-amber-800 flex items-center gap-2"
+                        >
+                          <MapPin className="h-4 w-4" />
                           Delivery Address
                         </Label>
                         <Input
@@ -297,23 +334,56 @@ const CartPage = () => {
                           placeholder="Enter your complete address"
                           className="border-amber-200 focus:border-amber-400"
                         />
+                        <div className="flex items-center space-x-2 mt-2">
+                          <Checkbox
+                            id="setDefaultAddress"
+                            checked={setAsDefaultAddress}
+                            onCheckedChange={(checked) =>
+                              setSetAsDefaultAddress(checked === true)
+                            }
+                            className="border-amber-300"
+                          />
+                          <Label
+                            htmlFor="setDefaultAddress"
+                            className="text-sm text-amber-700"
+                          >
+                            Set as default address
+                          </Label>
+                        </div>
                       </div>
 
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="setDefault"
-                          checked={setAsDefault}
-                          onCheckedChange={(checked) =>
-                            setSetAsDefault(checked === true)
-                          }
-                          className="border-amber-300"
-                        />
+                      <div className="space-y-2">
                         <Label
-                          htmlFor="setDefault"
-                          className="text-sm text-amber-700"
+                          htmlFor="contactNo"
+                          className="text-amber-800 flex items-center gap-2"
                         >
-                          Set as default address
+                          <Phone className="h-4 w-4" />
+                          Contact Number
                         </Label>
+                        <Input
+                          id="contactNo"
+                          value={contactNo}
+                          onChange={(e) => setContactNo(e.target.value)}
+                          placeholder="Enter your phone number"
+                          className="border-amber-200 focus:border-amber-400"
+                          type="tel"
+                        />
+                        <div className="flex items-center space-x-2 mt-2">
+                          <Checkbox
+                            id="setDefaultPhone"
+                            checked={setAsDefaultPhone}
+                            onCheckedChange={(checked) =>
+                              setSetAsDefaultPhone(checked === true)
+                            }
+                            className="border-amber-300"
+                          />
+                          <Label
+                            htmlFor="setDefaultPhone"
+                            className="text-sm text-amber-700"
+                          >
+                            Set as default phone number
+                          </Label>
+                        </div>
                       </div>
 
                       <div className="border-t pt-4">
@@ -323,7 +393,11 @@ const CartPage = () => {
                         </div>
                         <Button
                           onClick={handleCheckout}
-                          disabled={isPlacingOrder || !address.trim()}
+                          disabled={
+                            isPlacingOrder ||
+                            !address.trim() ||
+                            !contactNo.trim()
+                          }
                           className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white cursor-pointer"
                         >
                           {isPlacingOrder ? "Placing Order..." : "Place Order"}
