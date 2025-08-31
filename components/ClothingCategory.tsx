@@ -173,14 +173,17 @@ const ClothingCategory = () => {
               className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-amber-200 bg-white/80 backdrop-blur-sm hover:scale-105"
             >
               <div className="relative aspect-square overflow-hidden">
-                <img
-                  src={
-                    product.images[1] || "/placeholder.svg?height=300&width=300"
-                  }
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Link href={`/product/${product.id}`}>
+                  <img
+                    src={
+                      product.images[1] ||
+                      "/placeholder.svg?height=300&width=300"
+                    }
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </Link>
 
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <Button

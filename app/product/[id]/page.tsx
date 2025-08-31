@@ -27,6 +27,7 @@ import {
   Truck,
   Shield,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -101,6 +102,8 @@ export default function ProductDetailsPage() {
       return;
     }
 
+    setLoading(true);
+
     try {
       await addToCart(product?.id as string, cartQuantity, selectedSize);
       toast.success(`${cartQuantity} item(s) added to cart!`);
@@ -110,6 +113,8 @@ export default function ProductDetailsPage() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to add item to cart");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -199,7 +204,7 @@ export default function ProductDetailsPage() {
             <Link href="/">
               <Button
                 variant="ghost"
-                className="text-amber-700 hover:text-amber-900"
+                className="text-amber-700 hover:text-amber-900 cursor-pointer"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go back
@@ -233,6 +238,28 @@ export default function ProductDetailsPage() {
             </Card>
           </div>
 
+          <div className="grid grid-cols-4 gap-2">
+            {product.images.map((image, index) => (
+              <Card
+                key={index}
+                className={`cursor-pointer overflow-hidden border-2 transition-all ${
+                  selectedImage === index
+                    ? "border-amber-500 ring-2 ring-amber-200"
+                    : "border-amber-200 hover:border-amber-400"
+                }`}
+                onClick={() => setSelectedImage(index)}
+              >
+                <div className="aspect-square overflow-hidden ">
+                  <img
+                    src={image || "/placeholder.svg"}
+                    alt={`${product.name} ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </Card>
+            ))}
+          </div>
+
           <div className="space-y-6">
             <div>
               <Badge className="bg-amber-100 text-amber-800 mb-3">
@@ -243,11 +270,11 @@ export default function ProductDetailsPage() {
               </h1>
 
               <div className="flex items-center gap-4 mb-6">
-                <span className="text-4xl font-bold text-amber-800">
-                  ₹{product.price.toLocaleString()}
-                </span>
                 <span className="text-xl text-gray-500 line-through">
                   ₹{(product.price + 100).toLocaleString()}
+                </span>
+                <span className="text-4xl font-bold text-amber-800">
+                  ₹{product.price.toLocaleString()}
                 </span>
               </div>
 
@@ -376,13 +403,18 @@ export default function ProductDetailsPage() {
                       >
                         Cancel
                       </Button>
-                      <Button
-                        onClick={handleAddToCart}
-                        disabled={!selectedSize}
-                        className="flex-1 bg-amber-600 hover:bg-amber-700"
-                      >
-                        Add to Cart
-                      </Button>
+                      {loading ? (
+                        <Button disabled variant="outline" className="flex-1">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={(addToCart) => handleAddToCart()}
+                          className="flex-1 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-medium py-3 text-lg"
+                        >
+                          Add to Cart
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </DialogContent>
@@ -399,28 +431,6 @@ export default function ProductDetailsPage() {
                   <Heart className="h-5 w-5" />
                 )}
               </Button>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
-                <Card
-                  key={index}
-                  className={`cursor-pointer overflow-hidden border-2 transition-all ${
-                    selectedImage === index
-                      ? "border-amber-500 ring-2 ring-amber-200"
-                      : "border-amber-200 hover:border-amber-400"
-                  }`}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <div className="aspect-square overflow-hidden ">
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </Card>
-              ))}
             </div>
           </div>
         </div>
