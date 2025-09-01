@@ -221,7 +221,7 @@ const ClothingCategory = () => {
 
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <Link href={`/products/${product.id}`} className="flex-1">
+                  <Link href={`/product/${product.id}`} className="flex-1">
                     <h3 className="font-semibold text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-1 hover:underline cursor-pointer">
                       {product.name}
                     </h3>
