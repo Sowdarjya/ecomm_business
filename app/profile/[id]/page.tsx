@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { MapPin, Phone, Package, Calendar } from "lucide-react";
+import Link from "next/link";
 
 type User = {
   id: string;
@@ -87,7 +88,6 @@ const Profile = () => {
       const res = await getUserOrders();
       if (res.success && res.orders) {
         setOrders(res.orders as Order[]);
-        console.log("Orders fetched:", res.orders);
       } else {
         console.log("No orders or failed to fetch:", res);
         setOrders([]);
@@ -406,7 +406,7 @@ const Profile = () => {
                         >
                           <img
                             src={
-                              item.product.images[0] ||
+                              item.product.images[1] ||
                               "/placeholder.svg?height=64&width=64"
                             }
                             alt={item.product.name}
@@ -414,9 +414,12 @@ const Profile = () => {
                           />
 
                           <div className="flex-1">
-                            <h4 className="font-semibold text-amber-900">
+                            <Link
+                              href={`/product/${item.product.id}`}
+                              className="font-semibold text-amber-900 hover:underline mb-1 line-clamp-1"
+                            >
                               {item.product.name}
-                            </h4>
+                            </Link>
                             <p className="text-sm text-gray-600 mb-1 line-clamp-1">
                               {item.product.description}
                             </p>

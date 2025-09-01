@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -17,7 +18,12 @@ export function Footer() {
                 <Facebook className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon">
-                <Instagram className="h-5 w-5" />
+                <a
+                  href="https://www.instagram.com/bee_chitro?igsh=MW5vNmJobmp5NTZpZw=="
+                  target="_blank"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
               </Button>
               <Button variant="ghost" size="icon">
                 <Twitter className="h-5 w-5" />

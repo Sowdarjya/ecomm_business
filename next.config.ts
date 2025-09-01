@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
 
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client", "prisma"],
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
   },
 
   webpack: (config, { isServer }) => {

@@ -81,15 +81,12 @@ export async function placeOrder(address: string, contactNo: string) {
       0
     );
 
-    const shipping = totalPrice > 1000 ? 0 : 50;
-    const finalTotal = totalPrice + shipping;
-
     const result = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         const order = await tx.order.create({
           data: {
             userId: user.id,
-            totalPrice: finalTotal,
+            totalPrice: totalPrice,
             location: address.trim(),
             contactNo: contactNo.trim(),
             status: "PENDING",
@@ -159,7 +156,7 @@ export async function placeOrder(address: string, contactNo: string) {
       success: true,
       message: "Order placed successfully",
       orderId: result.order.id,
-      orderTotal: finalTotal,
+      orderTotal: totalPrice,
     };
   } catch (error) {
     console.error("Error placing order:", error);

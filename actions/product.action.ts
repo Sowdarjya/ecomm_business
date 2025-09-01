@@ -40,16 +40,18 @@ export const createProduct = async (
   sizes: string[] = []
 ) => {
   try {
-    const uploadedImages = await Promise.all(
-      images.map(async (image) => {
-        const buffer = await Buffer.from(await image.arrayBuffer());
-        const res = await imageKit.upload({
-          file: buffer,
-          fileName: image.name,
-        });
-        return res.url;
-      })
-    );
+    const uploadedImages = [];
+
+    for (const image of images) {
+      const buffer = await image.arrayBuffer();
+      const extension = image.name.split(".").pop();
+      const fileName = `${Date.now()}.${extension}`;
+      const uploadedImage = await imageKit.upload({
+        file: Buffer.from(buffer),
+        fileName,
+      });
+      uploadedImages.push(uploadedImage.url);
+    }
 
     const product = await prisma.product.create({
       data: {
