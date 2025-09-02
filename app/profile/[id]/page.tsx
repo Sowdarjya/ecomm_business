@@ -197,7 +197,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center px-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4" />
           <p className="text-amber-700 text-lg">Loading profile...</p>
@@ -208,8 +208,8 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center">
-        <Card className="p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center px-4">
+        <Card className="p-6 sm:p-8 text-center w-full max-w-md">
           <p className="text-amber-700 text-lg">User not found</p>
         </Card>
       </div>
@@ -217,21 +217,23 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 p-6">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 p-4 sm:p-6">
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
         {/* User Info */}
         <Card className="bg-white/90 backdrop-blur-md border-amber-200 shadow-lg">
-          <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4 space-y-2 sm:space-y-0">
             <img
               src={user.avatarUrl}
               alt={user.fullName}
-              className="w-20 h-20 rounded-full border-4 border-amber-300 object-cover"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-amber-300 object-cover mx-auto sm:mx-0"
             />
-            <div>
-              <CardTitle className="text-2xl text-amber-900">
+            <div className="text-center sm:text-left">
+              <CardTitle className="text-xl sm:text-2xl text-amber-900">
                 {user.fullName}
               </CardTitle>
-              <p className="text-amber-700">{user.email}</p>
+              <p className="text-amber-700 text-sm sm:text-base break-all">
+                {user.email}
+              </p>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -241,41 +243,43 @@ const Profile = () => {
                 <MapPin className="h-4 w-4" />
                 Address
               </Label>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 {editingAddress ? (
-                  <div className="flex-1 flex gap-2">
+                  <div className="w-full flex flex-col sm:flex-row gap-2">
                     <Input
                       value={newAddress}
                       onChange={(e) => setNewAddress(e.target.value)}
                       placeholder="Enter your address"
                       className="flex-1 border-amber-200 focus:border-amber-400"
                     />
-                    <Button
-                      onClick={handleAddressUpdate}
-                      className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white cursor-pointer"
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer"
-                      onClick={() => {
-                        setEditingAddress(false);
-                        setNewAddress(user.address);
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleAddressUpdate}
+                        className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white cursor-pointer flex-1 sm:flex-none"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer flex-1 sm:flex-none"
+                        onClick={() => {
+                          setEditingAddress(false);
+                          setNewAddress(user.address);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <>
-                    <p className="text-amber-700 flex-1">
+                    <p className="text-amber-700 flex-1 text-sm sm:text-base break-words">
                       {user.address || "No address set"}
                     </p>
                     <Button
                       variant="outline"
                       onClick={() => setEditingAddress(true)}
-                      className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer"
+                      className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer w-full sm:w-auto text-sm"
                     >
                       Edit
                     </Button>
@@ -290,9 +294,9 @@ const Profile = () => {
                 <Phone className="h-4 w-4" />
                 Phone Number
               </Label>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                 {editingPhone ? (
-                  <div className="flex-1 flex gap-2">
+                  <div className="w-full flex flex-col sm:flex-row gap-2">
                     <Input
                       value={newPhone}
                       onChange={(e) => setNewPhone(e.target.value)}
@@ -300,32 +304,34 @@ const Profile = () => {
                       type="tel"
                       className="flex-1 border-amber-200 focus:border-amber-400"
                     />
-                    <Button
-                      onClick={handlePhoneUpdate}
-                      className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white cursor-pointer"
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer"
-                      onClick={() => {
-                        setEditingPhone(false);
-                        setNewPhone(user.phone);
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handlePhoneUpdate}
+                        className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white cursor-pointer flex-1 sm:flex-none"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer flex-1 sm:flex-none"
+                        onClick={() => {
+                          setEditingPhone(false);
+                          setNewPhone(user.phone);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <>
-                    <p className="text-amber-700 flex-1">
+                    <p className="text-amber-700 flex-1 text-sm sm:text-base">
                       {user.phone || "No phone number set"}
                     </p>
                     <Button
                       variant="outline"
                       onClick={() => setEditingPhone(true)}
-                      className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer"
+                      className="border-amber-400 text-amber-700 hover:bg-amber-100 cursor-pointer w-full sm:w-auto text-sm"
                     >
                       Edit
                     </Button>
@@ -339,16 +345,16 @@ const Profile = () => {
         {/* Orders Section */}
         <Card className="bg-white/90 backdrop-blur-md border-amber-200 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl text-amber-900 flex items-center gap-2">
+            <CardTitle className="text-lg sm:text-xl text-amber-900 flex items-center gap-2">
               <Package className="h-5 w-5" />
               My Orders ({orders.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {orders.length === 0 ? (
-              <div className="text-center py-12">
-                <Package className="h-16 w-16 text-amber-300 mx-auto mb-4" />
-                <p className="text-amber-700 text-lg">
+              <div className="text-center py-8 sm:py-12">
+                <Package className="h-12 w-12 sm:h-16 sm:w-16 text-amber-300 mx-auto mb-4" />
+                <p className="text-amber-700 text-base sm:text-lg">
                   You have no orders yet.
                 </p>
                 <p className="text-amber-600 text-sm mt-2">
@@ -356,31 +362,32 @@ const Profile = () => {
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    className="border border-amber-200 rounded-lg p-6 hover:shadow-md transition bg-white"
+                    className="border border-amber-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition bg-white"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-amber-900 font-semibold text-lg flex items-center gap-2">
+                    {/* Order Header */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+                      <div className="w-full sm:w-auto">
+                        <p className="text-amber-900 font-semibold text-base sm:text-lg flex items-center gap-2">
                           <Package className="h-4 w-4" />
                           Order #{order.id.slice(-8)}
                         </p>
-                        <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-1">
                           <Calendar className="h-3 w-3" />
                           Placed on:{" "}
                           {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 w-full sm:w-auto">
                         <Badge
                           className={`${getStatusColor(
                             order.status
-                          )} text-white`}
+                          )} text-white text-xs sm:text-sm`}
                         >
-                          {order.status}
+                          {order.status === "PENDING" ? "ORDERED" : "DELIVERED"}
                         </Badge>
                         {canCancelOrder(order.status) && (
                           <Button
@@ -388,21 +395,22 @@ const Profile = () => {
                             size="sm"
                             onClick={() => handleCancelOrder(order.id)}
                             disabled={cancellingOrder === order.id}
-                            className="border-red-300 text-red-600 hover:bg-red-50 cursor-pointer"
+                            className="border-red-300 text-red-600 hover:bg-red-50 cursor-pointer text-xs sm:text-sm flex-1 sm:flex-none"
                           >
                             {cancellingOrder === order.id
                               ? "Cancelling..."
-                              : "Cancel Order"}
+                              : "Cancel"}
                           </Button>
                         )}
                       </div>
                     </div>
 
+                    {/* Order Items */}
                     <div className="space-y-3 mb-4">
                       {order.items.map((item) => (
                         <div
                           key={item.id}
-                          className="flex items-center gap-4 p-3 bg-amber-50 rounded-lg"
+                          className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 bg-amber-50 rounded-lg"
                         >
                           <img
                             src={
@@ -410,20 +418,20 @@ const Profile = () => {
                               "/placeholder.svg?height=64&width=64"
                             }
                             alt={item.product.name}
-                            className="w-16 h-16 rounded-md object-cover border border-amber-200"
+                            className="w-16 h-16 sm:w-16 sm:h-16 rounded-md object-cover border border-amber-200 mx-auto sm:mx-0"
                           />
 
-                          <div className="flex-1">
+                          <div className="flex-1 w-full">
                             <Link
                               href={`/product/${item.product.id}`}
-                              className="font-semibold text-amber-900 hover:underline mb-1 line-clamp-1"
+                              className="font-semibold text-amber-900 hover:underline mb-1 line-clamp-2 sm:line-clamp-1 text-sm sm:text-base block"
                             >
                               {item.product.name}
                             </Link>
-                            <p className="text-sm text-gray-600 mb-1 line-clamp-1">
+                            <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2 sm:line-clamp-1">
                               {item.product.description}
                             </p>
-                            <div className="flex items-center gap-4 text-sm">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                               <span className="text-amber-700">
                                 Size: <strong>{item.size || "N/A"}</strong>
                               </span>
@@ -436,8 +444,8 @@ const Profile = () => {
                             </div>
                           </div>
 
-                          <div className="text-right">
-                            <p className="font-semibold text-amber-900">
+                          <div className="text-right w-full sm:w-auto">
+                            <p className="font-semibold text-amber-900 text-sm sm:text-base">
                               ₹{item.product.price * item.quantity}
                             </p>
                             <p className="text-xs text-gray-500">
@@ -448,30 +456,40 @@ const Profile = () => {
                       ))}
                     </div>
 
+                    {/* Order Footer */}
                     <div className="pt-3 border-t border-amber-200">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                        <div className="text-sm text-gray-600">
-                          <p className="flex items-center gap-1">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-3">
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          <p className="flex items-center gap-1 justify-center sm:justify-start">
                             <MapPin className="h-3 w-3" />
                             <span className="font-medium">Delivery:</span>{" "}
-                            {order.location}
+                            <span className="break-words">
+                              {order.location}
+                            </span>
                           </p>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          <p className="flex items-center gap-1">
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          <p className="flex items-center gap-1 justify-center sm:justify-start">
                             <Phone className="h-3 w-3" />
                             <span className="font-medium">Contact:</span>{" "}
                             {order.contactNo || "N/A"}
                           </p>
                         </div>
+                        <div className="text-xs sm:text-sm text-gray-600">
+                          <p className="flex items-center gap-1 justify-center sm:justify-start">
+                            <Package className="h-3 w-3" />
+                            <span className="font-medium">Payment:</span> Cash
+                            on Delivery
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-500">
+                      <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <div className="text-xs sm:text-sm text-gray-500 order-2 sm:order-1">
                           {order.items.length} item
                           {order.items.length > 1 ? "s" : ""}
                         </div>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-amber-900">
+                        <div className="text-center sm:text-right order-1 sm:order-2">
+                          <p className="text-lg sm:text-xl font-bold text-amber-900">
                             Total: ₹{order.totalPrice}
                           </p>
                         </div>

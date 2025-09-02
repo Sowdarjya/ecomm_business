@@ -177,7 +177,7 @@ const Wishlist = () => {
               </p>
               <Link
                 href={"/"}
-                className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white hover:from-amber-700 hover:to-yellow-600"
+                className="bg-gradient-to-r p-2 rounded-full from-amber-600 to-yellow-500 text-white hover:from-amber-700 hover:to-yellow-600"
               >
                 Continue Shopping
               </Link>

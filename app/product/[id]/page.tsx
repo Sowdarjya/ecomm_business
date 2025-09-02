@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +37,7 @@ import {
   getWishlist,
   removeFromWishlist,
 } from "@/actions/wishlist.action";
+import { useUser } from "@clerk/nextjs";
 
 type Product = {
   id: string;
@@ -60,6 +61,8 @@ export default function ProductDetailsPage() {
   const [selectedSize, setSelectedSize] = useState("");
   const [cartQuantity, setCartQuantity] = useState(1);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -102,7 +105,12 @@ export default function ProductDetailsPage() {
       return;
     }
 
-    setLoading(true);
+    if (!user) {
+      toast.error("Please login to add to cart");
+      return;
+    }
+
+    setSaving(true);
 
     try {
       await addToCart(product?.id as string, cartQuantity, selectedSize);
@@ -114,7 +122,7 @@ export default function ProductDetailsPage() {
       console.error(error);
       toast.error("Failed to add item to cart");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -407,7 +415,7 @@ export default function ProductDetailsPage() {
                       <Button
                         variant="outline"
                         onClick={() => setIsDialogOpen(false)}
-                        className="flex-1"
+                        className="flex-1 cursor-pointer"
                       >
                         Cancel
                       </Button>
@@ -418,9 +426,16 @@ export default function ProductDetailsPage() {
                       ) : (
                         <Button
                           onClick={handleAddToCart}
-                          className="flex-1 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-medium py-3 text-lg"
+                          disabled={saving || product.stock === 0}
+                          className="flex-1 bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-700 hover:to-yellow-600 text-white font-medium py-3 text-lg cursor-pointer"
                         >
-                          Add to Cart
+                          {product.stock === 0 ? (
+                            "Out of Stock"
+                          ) : saving ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Add to Cart"
+                          )}
                         </Button>
                       )}
                     </div>

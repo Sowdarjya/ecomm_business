@@ -5,7 +5,14 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, ShoppingBag, ArrowRight, Phone, MapPin } from "lucide-react";
+import {
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  Phone,
+  MapPin,
+  CreditCard,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -383,6 +390,22 @@ const CartPage = () => {
                           >
                             Set as default phone number
                           </Label>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-amber-800 flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          Payment Method
+                        </Label>
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+                          <p className="text-amber-700 font-medium">
+                            Cash on Delivery
+                          </p>
+                          <p className="text-xs text-amber-600 mt-1">
+                            We only accept COD now. Pay when your order is
+                            delivered.
+                          </p>
                         </div>
                       </div>
 

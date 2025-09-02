@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { useUser } from "@clerk/nextjs";
 
 type Product = {
   id: string;
@@ -52,6 +53,7 @@ const ClothingCategory = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [saving, setSaving] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const { user } = useUser();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -111,6 +113,13 @@ const ClothingCategory = () => {
     quantity?: number,
     size?: string
   ) => {
+    if (!user) {
+      toast.error("Please login to add to cart");
+      return;
+    }
+
+    setSaving(true);
+
     try {
       await addToCart(id, quantity, size);
       setDialogOpen(false);
@@ -350,7 +359,7 @@ const ClothingCategory = () => {
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
                   disabled={saving}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                 >
                   Cancel
                 </Button>
@@ -367,7 +376,7 @@ const ClothingCategory = () => {
                     !selectedSize ||
                     (selectedProduct?.stock ?? 0) === 0
                   }
-                  className="flex-1 bg-amber-600 hover:bg-amber-700"
+                  className="flex-1 bg-amber-600 hover:bg-amber-700 cursor-pointer"
                 >
                   {saving ? "Adding..." : "Add to Cart"}
                 </Button>
