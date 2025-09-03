@@ -1,5 +1,6 @@
 "use server";
 
+import { sendOrderConfirmedEmail } from "@/lib/mailer";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
@@ -147,6 +148,19 @@ export async function placeOrder(address: string, contactNo: string) {
         phone: contactNo.trim(),
       },
     });
+
+    try {
+      await sendOrderConfirmedEmail(
+        user.email,
+        user.fullName || "Valued Customer",
+        result.order.id,
+        totalPrice,
+        address.trim(),
+        contactNo.trim()
+      );
+    } catch (emailError) {
+      console.error("Failed to send confirmation email:", emailError);
+    }
 
     revalidatePath("/cart");
     revalidatePath("/orders");
