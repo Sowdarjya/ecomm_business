@@ -99,7 +99,7 @@ const ClothingCategory = () => {
           setWishlist((prev) => [...prev, productId]);
           toast.success("Added to wishlist");
         } else {
-          toast.error(res.message || "Unable to add to wishlist");
+          toast.error("Login to add to wishlist");
         }
       }
     } catch (error) {
@@ -185,7 +185,7 @@ const ClothingCategory = () => {
                 <Link href={`/product/${product.id}`}>
                   <img
                     src={
-                      product.images[1] ||
+                      product.images[0] ||
                       "/placeholder.svg?height=300&width=300"
                     }
                     alt={product.name}

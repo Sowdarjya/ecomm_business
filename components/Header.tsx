@@ -25,7 +25,7 @@ export function Header() {
       if (quantity.success) {
         setCartQuantity(quantity.quantity ?? 0);
       } else {
-        toast.error(quantity.message || "Failed to fetch cart quantity");
+        console.log("Please login");
       }
     } catch (error) {
       console.log(error);
