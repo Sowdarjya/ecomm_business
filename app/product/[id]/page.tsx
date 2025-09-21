@@ -28,6 +28,8 @@ import {
   Shield,
   RotateCcw,
   Loader2,
+  Ruler,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -62,6 +64,7 @@ export default function ProductDetailsPage() {
   const [cartQuantity, setCartQuantity] = useState(1);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(true);
   const { user } = useUser();
 
   useEffect(() => {
@@ -164,7 +167,7 @@ export default function ProductDetailsPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <div className="aspect-square bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="aspect-[3/4] lg:aspect-[4/5] bg-gray-200 rounded-lg animate-pulse"></div>
               <div className="grid grid-cols-4 gap-2">
                 {[...Array(4)].map((_, i) => (
                   <div
@@ -224,58 +227,53 @@ export default function ProductDetailsPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left side - Images */}
-          <div className="flex flex-col lg:flex-row gap-4">
+          {/* Image Section - Modified Layout */}
+          <div className="space-y-4">
             {/* Main Image */}
-            <div className="flex-1">
-              <Card className="overflow-hidden border-amber-200 bg-white/80 backdrop-blur-sm">
-                <div className="aspect-square relative overflow-hidden">
-                  <img
-                    src={
-                      product.images[selectedImage] ||
-                      "/placeholder.svg?height=600&width=600"
-                    }
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {product.stock === 0 && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <Badge className="bg-red-500 text-white text-lg px-4 py-2">
-                        Out of Stock
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </div>
-
-            {/* Thumbnail Images */}
-            <div className="lg:w-24">
-              <div className="grid grid-cols-4 lg:grid-cols-1 gap-2">
-                {product.images.map((image, index) => (
-                  <Card
-                    key={index}
-                    className={`cursor-pointer overflow-hidden border-2 transition-all ${
-                      selectedImage === index
-                        ? "border-amber-500 ring-2 ring-amber-200"
-                        : "border-amber-200 hover:border-amber-400"
-                    }`}
-                    onClick={() => setSelectedImage(index)}
-                  >
-                    <div className="aspect-square overflow-hidden">
-                      <img
-                        src={image || "/placeholder.svg"}
-                        alt={`${product.name} ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </Card>
-                ))}
+            <Card className="overflow-hidden border-amber-200 bg-white/80 backdrop-blur-sm">
+              <div className="aspect-[3/4] lg:aspect-[4/5] relative overflow-hidden">
+                <img
+                  src={
+                    product.images[selectedImage] ||
+                    "/placeholder.svg?height=600&width=600"
+                  }
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+                {product.stock === 0 && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <Badge className="bg-red-500 text-white text-lg px-4 py-2">
+                      Out of Stock
+                    </Badge>
+                  </div>
+                )}
               </div>
+            </Card>
+
+            {/* Thumbnail Images - Now Below Main Image */}
+            <div className="grid grid-cols-4 gap-2">
+              {product.images.map((image, index) => (
+                <Card
+                  key={index}
+                  className={`cursor-pointer overflow-hidden border-2 transition-all ${
+                    selectedImage === index
+                      ? "border-amber-500 ring-2 ring-amber-200"
+                      : "border-amber-200 hover:border-amber-400"
+                  }`}
+                  onClick={() => setSelectedImage(index)}
+                >
+                  <div className="aspect-square overflow-hidden">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
 
-          {/* Right side - Product Details */}
           <div className="space-y-6">
             <div>
               <Badge className="bg-amber-100 text-amber-800 mb-3">
@@ -339,6 +337,78 @@ export default function ProductDetailsPage() {
                 </p>
               </CardContent>
             </Card>
+
+            {product.category === "CLOTHING" && (
+              <div className="space-y-4">
+                <div
+                  onClick={() => setIsSizeGuideOpen(!isSizeGuideOpen)}
+                  className="flex items-center gap-2 cursor-pointer hover:text-amber-700"
+                >
+                  <Button
+                    variant="ghost"
+                    className="p-0 h-auto hover:bg-transparent flex items-center gap-2 text-amber-800"
+                  >
+                    <Ruler className="h-4 w-4" />
+                    <span>Size Guide</span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${
+                        isSizeGuideOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </Button>
+                </div>
+
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                    isSizeGuideOpen
+                      ? "max-h-96 opacity-100"
+                      : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <Card className="border-amber-200 bg-white/60 backdrop-blur-sm">
+                    <CardContent className="p-4">
+                      <table className="min-w-full">
+                        <thead>
+                          <tr className="border-b border-amber-200">
+                            <th className="py-2 px-4 text-left text-amber-900">
+                              Size
+                            </th>
+                            <th className="py-2 px-4 text-left text-amber-900">
+                              Chest
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries({
+                            S: 38,
+                            M: 40,
+                            L: 42,
+                            XL: 44,
+                            XXL: 46,
+                          }).map(([size, chest]) => (
+                            <tr
+                              key={size}
+                              className="border-b border-amber-100"
+                            >
+                              <td className="py-2 px-4 text-amber-800">
+                                {size}
+                              </td>
+                              <td className="py-2 px-4 text-amber-800">
+                                {chest}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <p className="mt-4 text-sm text-amber-700">
+                        Note: Please measure yourself carefully for the best
+                        fit. Measure your chest at its widest point.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-4">
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

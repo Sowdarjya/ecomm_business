@@ -225,7 +225,7 @@ const CartPage = () => {
                     <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-amber-100">
                       <Image
                         src={
-                          item.product.images[1] ||
+                          item.product.images[0] ||
                           "/placeholder.svg?height=96&width=96"
                         }
                         alt={item.product.name}
